@@ -7,8 +7,7 @@
 	"src/mahjong-tiles.html",
 	"src/mahjong-layouts.html",
 	"src/mahjong-scores.html",
-	"src/mahjong-view404.html",
-	"src/mahjong-tileset-default.svg",
+	"src/mahjong-view404.html"
     ],
     "sourceGlobs": [
 	"src/**/*",

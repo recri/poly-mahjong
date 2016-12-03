@@ -1,0 +1,43 @@
+* Mahjong progressive web app
+** Mahjong svg canvas class
+   has:
+*** viewBox - determined by tile size and layout size
+*** defs section containing the tile image definitions
+** Mahjong tile image class
+   has:
+*** tile-decoration - the svg which draws the tile decoration
+    just the name of the tile decoration def
+*** a position - x and y in units of tile-width and tile-height
+*** is-drawn - 
+*** is-selected - if drawn, is drawn with selected tile or plain tile
+*** can-be-selected, is unblocked, ie playable
+     actually a property of the layout with the specified tiles removed,
+     that is a game state
+*** on-click - handler that determines whether to change is-selected
+    is:
+*** drawn in svg
+*** separate base tile and tile decoration rendering
+*** separate plain tile and selected tile rendering
+*** If defined and drawn in one svg element,
+    then shared definitions are unproblematic.
+**** Pulling shared definitions from source file
+     which in turn use shared definitions
+     is awkward for unknown reasons.
+     There are multiple layers and versions of shadow
+     dom active because of polymer, because of <use ...>
+     elements in svg, because of <use ...> elements which
+     reference other source files of svg.
+** Mahjong tile class
+*** draws selected and unselected versions of tiles,
+*** detects matching tiles
+**** which have identical images
+     Most tiles occur with multiplicity 4 in the collection,
+     but seasons and flowers only have multiplicity 1.
+     seasons match seasons and flowers match flowers.
+     Ah, eliminate the four different season/flower tiles, use
+     the same tile image for all four, they match just like the
+     others.
+** Mahjong layout class
+*** Defines slots which tiles may occupy
+*** Defines which slots are selectable
+**  
