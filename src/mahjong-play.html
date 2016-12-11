@@ -21,13 +21,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 	padding: 10px;
 	html, body { margin:0; padding:0; overflow:hidden }
-	svg { position:fixed; top:0; bottom:0; left:0; right:0 }
-
+	svg { position:fixed; top:0; bottom:0; left:0; right:0; }
+        svg#mahjong { fill: #323657; }
       }
     </style>
 
     <div id="content" style="width: 100%; height: 100%">
-      <h1>Play</h1>
       <!-- viewBox needs to be adjusted for layout and tiles
 	   the tiles are 64x88, but some of that is overlapped by adjacent tiles,
 	   the layout is 11 tiles wide, 7 tiles tall, and 7 tiles deep,
@@ -41,7 +40,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
            viewBox="0 0 704 616"
            preserveAspectRatio="xMidYMid meet"
 	   id="mahjong">
-
+	<rect width="100%" height="100%" fill="#323657" />
 	<defs>
 	  <g id="plain-tile">
 	    <!-- outline black -->
@@ -437,45 +436,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
   </template>
 
-  <script>
-    Polymer({
-	is: 'mahjong-play',
-	ready: function() {
-	    this.tiles = [
-		"one-coin", "two-coins", "three-coins", "four-coins", "five-coins", "six-coins", "seven-coins", "eight-coins", "nine-coins",
-	  	"one-bamboo", "two-bamboo", "three-bamboo", "four-bamboo", "five-bamboo", "six-bamboo", "seven-bamboo", "eight-bamboo", "nine-bamboo",
-		"one-character", "two-character", "three-character", "four-character", "five-character", "six-character", "seven-character", 
-		"eight-character", "nine-character",
-		"north-wind", "west-wind", "south-wind", "east-wind", "season", "flower", "white-dragon", "red-dragon", "green-dragon"
-	    ];
-	    // create the tiles
-	    for (let t of this.tiles) { 
-		for (let i of [1,2,3,4]) {
-		    let x = Math.random()*64*11
-		    let y = Math.random()*88*7
-		    let tile = document.createElementNS("http://www.w3.org/2000/svg", "g")
-
-		    let bg = document.createElementNS("http://www.w3.org/2000/svg", "use")
-		    bg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+"plain-tile")
-		    bg.setAttribute("x", x)
-		    bg.setAttribute("y", y)
-		    tile.appendChild(bg)
-
-		    let fg = document.createElementNS("http://www.w3.org/2000/svg", "use")
-		    fg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+t)
-		    fg.setAttribute("x", x)
-		    fg.setAttribute("y", y)
-		    tile.appendChild(fg)
-
-		    tile.id = t+"-"+i
-		    tile.setAttribute("x", x)
-		    tile.setAttribute("y", y)
-		    tile.onclick = function() { console.log("tile "+t+"-"+i+" clicked") }
-		    this.$.mahjong.appendChild(tile)
-		}
-	    }
-	    console.log("finished in mahjong-play.ready");
-        },
-    });
-  </script>
+  <script src="alea.js"></script>
+  <script src="mahjong-play.js"></script>
 </dom-module>
