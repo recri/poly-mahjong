@@ -19,11 +19,12 @@ function MahjongLayout(root, map) {
     function slot_x(slot) { return slot[0] }
     function slot_y(slot) { return slot[1] }
     function slot_z(slot) { return slot[2] }
+    let slots = []
+    let layers = []
+    let width = 11
+    let height = 7
 
     let layout = {
-	slots: [],
-	width: 11,
-	height: 7,
 	// as a associative array over list values, uses the list pointer as index, cough, cough
 	layout: new Map(),
 	set: function(xyz, tag, val) {
@@ -59,9 +60,9 @@ function MahjongLayout(root, map) {
 
 	// get all of the slots in render order
 	// ie, those which are obscured are drawn before those which obscure
-	get_slots : function() { return this.slots },
+	get_slots : function() { return slots },
 	// find the slots in a z layer in render order
-	layer_slots : function(z) { return this.slots.filter((slot) => slot_z(slot) == z) },
+	layer_slots : function(z) { return layers[z] },
 	// expand the layout map description
 	expand_layout : function(part) {
 	    if (part.type === "tile") {
@@ -99,17 +100,13 @@ function MahjongLayout(root, map) {
 	add_x_adjacent : function (xyz, xnynzn) { this.add_symmetric("x-adjacent", xyz, xnynzn) },
 	// record a symmetric relation
 	add_symmetric : function(relation, slot1, slot2) {
-	    if ( ! this.contains(slot1, relation, slot2)) {
-		this.lappend(slot1, relation, slot2)
-	    }
-	    if ( ! this.contains(slot2, relation, slot1)) {
-		this.lappend(slot2, relation, slot1)
-	    }
+	    if ( ! this.contains(slot1, relation, slot2)) { this.lappend(slot1, relation, slot2) }
+	    if ( ! this.contains(slot2, relation, slot1)) { this.lappend(slot2, relation, slot1) }
 	},
 	// an antisymmetric relation
 	add_left_adjacent : function(slot1, slot2) {
-	    if ( ! this.get(slot1, "left-adjacent").contains(slot2)) { this.lappend(slot1, "left-adjacent", slot2) }
-	    if ( ! this.get(slot2, "right-adjacent").contains(slot1)) { this.lappend(slot2, "right-adjacent", slot1) }
+	    if ( ! this.contains(slot1, "left-adjacent", slot2)) { this.lappend(slot1, "left-adjacent", slot2) }
+	    if ( ! this.contains(slot2, "right-adjacent", slot1)) { this.lappend(slot2, "right-adjacent", slot1) }
 	},
 	add_right_adjacent : function(slot1, slot2) { this.add_left_adjacent(slot2, slot1) },
 	
@@ -136,10 +133,29 @@ function MahjongLayout(root, map) {
 	    ]) {
 		this.set(xyz, tag, val)
 	    }
-	    this.slots.push(xyz)
+	    slots.push(xyz)
+	    if (z >= layers.length) layers.push([])
+	    layers[z].push(xyz)
 	    return xyz
 	},
 
+	slots_to_string : function(ss) {
+	    return "["+ss.map(s => s.join(",")).join("][")+"]"
+	},
+	// find a slot with the given x, y, z
+	// we use slots, the array of x, y, z coordinates, as a unique identifier
+	// so a new array of the same x, y, z does not register as equal
+	find_slot : function(x1,y1,z1) {
+	    function slot_equal(s) {
+		let [x2,y2,z2] = s
+		let abs = (x) => Math.abs(x)
+		return abs(x1-x2) < 0.25 && abs(y1-y2) < 0.25
+	    }
+	    for (let s of layers[z1]) if (slot_equal(s)) return s
+	    console.log("failed to find slot for "+x1+","+y1+","+z1)
+	    console.log(this.slots_to_string(layers[z1]))
+	    throw("failed to find slots")
+	},
 	// compute the x-adjacent set of the tile
 	compute_x_adjacent : function(xyz) {
 	    let [x, y, z] = xyz
@@ -148,7 +164,7 @@ function MahjongLayout(root, map) {
 		for (dy of [-0.5, 0, 0.5]) {
 		    let yn = y+dy
 		    // NB - are xn and yn congruent to slots?
-		    let xnynzn = [xn, yn, z]
+		    let xnynzn = this.find_slot(xn, yn, z)
 		    if ( ! this.exists_slot(xnynzn)) continue
 		    this.add_x_adjacent(xyz,xnynzn)
 		    if (xn-x < 0) this.add_left_adjacent(xyz, xnynzn)
@@ -426,15 +442,16 @@ function MahjongLayout(root, map) {
 	    // and there is nothing to the left
 	    return ! this.all_empty_left_adjacent(sl2)
 	},
+	sizes : () => [width, height],
     }
     for (part of map) {
 	layout.expand_layout(part)
     }
-    for (slot of layout.slots) {
+    for (slot of slots) {
 	layout.compute_x_adjacent(slot)
 	layout.compute_z_shadow(slot)
     }
-    for (slot of layout.slots) {
+    for (slot of slots) {
 	layout.compute_x_closure(slot)
 	layout.compute_row_closure(slot)
     }
@@ -442,86 +459,89 @@ function MahjongLayout(root, map) {
 }
 
 function MahjongTiles(root) {
-    let tiles = {
-	images: [
-	    "one-coin", "two-coins", "three-coins", "four-coins", "five-coins", "six-coins", "seven-coins",
-	    "eight-coins", "nine-coins", "one-bamboo", "two-bamboo", "three-bamboo", "four-bamboo", "five-bamboo",
-	    "six-bamboo", "seven-bamboo", "eight-bamboo", "nine-bamboo", "one-character", "two-character", 
-	    "three-character", "four-character", "five-character", "six-character", "seven-character", 
-	    "eight-character", "nine-character", "north-wind", "west-wind", "south-wind", "east-wind", "season",
-	    "flower", "white-dragon", "red-dragon", "green-dragon"
-	],
-	tiles: [],
-	slots: [],
-	get_tiles: function() { return this.tiles },
-	match: function(name1, name2) { return name1.substring(0,name1.length-2) === name2.substring(0,name2.length-2) },
+    let images = [
+	"one-coin", "two-coins", "three-coins", "four-coins", "five-coins", "six-coins", "seven-coins",
+	"eight-coins", "nine-coins", "one-bamboo", "two-bamboo", "three-bamboo", "four-bamboo", "five-bamboo",
+	"six-bamboo", "seven-bamboo", "eight-bamboo", "nine-bamboo", "one-character", "two-character", 
+	"three-character", "four-character", "five-character", "six-character", "seven-character", 
+	"eight-character", "nine-character", "north-wind", "west-wind", "south-wind", "east-wind", "season",
+	"flower", "white-dragon", "red-dragon", "green-dragon"
+    ]
+    let tiles = []
+
+    // tile sizes
+    let tilew = 64				// tile image width
+    let tileh = 88				// tile image height
+    let offx = tilew / 10.0			// offset from left edge to tile face
+    let offy = tileh / 11.0			// offset from bottom edge to tile face
+    let facew = tilew - offx			// tile face width
+    let faceh = tileh - offy			// tile face height
+
+    let self = {
+	get_tiles : () => tiles,
+	match : (name1, name2) => name1.substring(0,name1.length-2) === name2.substring(0,name2.length-2),
 	draw : function(slot, name) {
 	    let [x,y,z] = slot
-	    // console.log("draw(["+x+","+y+","+z+"],"+name+")")
-	    x = x*this.facew + z*this.offx
-	    y = y*this.faceh - z*this.offy
+	    sx = (x+0.5)*facew + z*offx
+	    sy = (y+0.5)*faceh - z*offy
+	    var translate = root.$.mahjong.createSVGTransform();
+	    translate.setTranslate(sx,sy);
+	    root.$[name].transform.baseVal.initialize(translate)
 	    for (id of [name, name+"-bg", name+"-fg"]) {
-		root.$[id].setAttributeNS("http://www.w3.org/2000/svg", "x", x);
-		root.$[id].setAttributeNS("http://www.w3.org/2000/svg", "y", y);
+		//root.$[id].x.baseVal.value = sx
+		//root.$[id].y.baseVal.value = sy
 	    }
-	    // root.$[name].setAttribute("style", "display: normal")
+	    root.$[name].style.display = ""
 	},
 	show : function(slot, name, tag) {
 	    if (tag == "blank") {
-		// root.$[name+"-fg"].setAttributeNS("http://www.w3.org/2000/svg", "style", "display: none")
-		root.$[name+"-bg"].setAttributeNS("http://www.w3.org/1999/xlink", "href", "#plain-tile")
+		root.$[name+"-fg"].style.display = ""
+		root.$[name+"-bg"].setAttribute("href", "#plain-tile")
 	    } else {
-		// root.$[name+"-fg"].setAttributeNS("http://www.w3.org/2000/svg", "style", "display: normal")
-		root.$[name+"-bg"].setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+tag+"-tile")
+		root.$[name+"-fg"].style.display = ""
+		root.$[name+"-bg"].setAttribute("href", "#"+tag+"-tile")
 	    }
 	},
 	hide : function(slot, name) {
 	    if (name != null) {
 		// console.log("hide(slot, "+name+")")
-		// root.$[name].setAttributeNS("http://www.w3.org/2000/svg", "style", "display: none;")
+		root.$[name].style.display = "none"
 	    }
 	},
-	create : function(id, image) {
-	    let tile = document.createElementNS("http://www.w3.org/2000/svg", "g")
-	    let bg = document.createElementNS("http://www.w3.org/2000/svg", "use")
-	    let fg = document.createElementNS("http://www.w3.org/2000/svg", "use")
-
-	    tile.id = id
-	    bg.id = id+"-bg"
-	    fg.id = id+"-fg"
-
-	    bg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+"plain-tile")
-	    fg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+image)
-
-	    tile.appendChild(bg)
-	    tile.appendChild(fg)
-	    root.$.mahjong.appendChild(tile)
-	    
-	    root.$[bg.id] = bg
-	    root.$[fg.id] = fg
-	    root.$[id] = tile
-
-	    return id
-	}
-
+	sizes : () => [tilew, tileh, offx, offy, facew, faceh],
     }
 
-    // tile sizes
-    tiles.tilew = 64				// tile image width
-    tiles.tileh = 88				// tile image height
-    tiles.offx = tiles.tilew / 10.0		// offset from left edge to tile face
-    tiles.offy = tiles.tileh / 11.0		// offset from bottom edge to tile face
-    tiles.facew = tiles.tilew - tiles.offx	// tile face width
-    tiles.faceh = tiles.tileh - tiles.offy	// tile face height
+    function create(id, image) {
+	let tile = document.createElementNS("http://www.w3.org/2000/svg", "g")
+	let bg = document.createElementNS("http://www.w3.org/2000/svg", "use")
+	let fg = document.createElementNS("http://www.w3.org/2000/svg", "use")
+
+	tile.id = id
+	bg.id = id+"-bg"
+	fg.id = id+"-fg"
+
+	bg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+"plain-tile")
+	fg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+image)
+
+	tile.appendChild(bg)
+	tile.appendChild(fg)
+	root.$.mahjong.appendChild(tile)
+	
+	root.$[bg.id] = bg
+	root.$[fg.id] = fg
+	root.$[id] = tile
+
+	return id
+    }
 
     // create the tiles
-    tiles.tiles = []
-    for (let t of tiles.images) { 
+    for (let t of images) { 
 	for (let i of [1,2,3,4]) {
-	    tiles.tiles.push(tiles.create(t+"-"+i, t))
+	    tiles.push(create(t+"-"+i, t))
 	}
     }
-    return tiles
+
+    return self
 }
 
 function MahjongGame(root, layout, tiles, prefs, game_seed) {
@@ -654,6 +674,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	get_all_slots : function() { return layout.get_slots() },
 	get_remaining_tiles : () => tiles.get_tiles().filter((name) => (name_to_slot.get(name) != null)),
 	tile_sizes : () => tiles.sizes(),
+	layout_sizes : () => layout.sizes(),
 	xy_for_slot : (slot) => tiles.xy_for_slot(slot),
 
 	// don't worry about this, at least not yet
@@ -984,7 +1005,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    srandom(game_seed)
 	    // console.log(this.get_all_slots())
 	    shuffled_slots = shuffle(this.get_all_slots())
-	    shuffled_tiles = this.sort_matching(shuffle(this.get_tiles()))
+	    shuffled_tiles = shuffle(this.get_tiles())
 	    // console.log("shuffled_slots"); console.log(shuffled_slots)
 	    // console.log("shuffled_tiles"); console.log(shuffled_tiles)
 	    this.start_status()
@@ -1017,19 +1038,20 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 
 	
 	    // pick matching pairs from available
-	    let names = shuffled_tiles
-	    let slots = shuffled_slots
+	    let names = shuffled_tiles.slice(0)
+	    let slots = shuffled_slots.slice(0)
 	    let moves = []
 	    remaining_tiles = 0
 	
-	    if (true) {
+	    if (false) {
 		for (let i = 0; i < names.length; i += 1) this.tile_place(slots[i], names[i])
 		this.history_empty()
 		remaining_moves = this.count_moves()
+		this.raise_in_render_order()
 	    } else {
 		// make an initial update
 		// if (this.watch) this.update
-		
+		names = this.sort_matching(names)
 		while (names.length > 0) {
 		    if (remaining_tiles != 144-names.length) {
 			console.log("remaining-tiles "+remaining_tiles+" != 144-names.length 144-"+names.length)
@@ -1146,7 +1168,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		// this counts the undealt tiles in a deal that fails
 		if (names.length > 0) {
 		    this.trace_puts( "broke deal loop with "+names.length+" tiles remaining")
-		    this.new_game
+		    this.new_game()
 		    return
 		}
 		// make and save the history of the play
@@ -1289,7 +1311,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    this.draw(slot, name)
 	    this.show(slot, name, "plain")
 	    root.$[name].onclick = function() { game.onclick(slot, name) }
-	    this.raise_in_render_order()
+	    // this.raise_in_render_order()
 	    remaining_tiles += 1
 	},
 	tile_unplace : function(slot, name) {
@@ -1353,11 +1375,6 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		// but not how we get the right order now
 		this.raise_in_render_order()
 	    }
-	},
-	// function to position a tile at a layout slot
-	tile_position : function(tile, slot) {
-	    // set the coordinates of this tile
-	    this.tile_place(slot, tile)
 	},
     }
 
@@ -1438,6 +1455,15 @@ Polymer({
 	// seed, should be web parameter
 	let game_seed = null
 	
+	// viewbox
+	let [tilew, tileh, offx, offy, facew, faceh] = tiles.sizes();
+	let [layw, layh] = layout.sizes()
+	let w = Math.floor((layw+1)*facew+offx)
+	let h = Math.floor((layh+1)*faceh+offy)
+	let vb = "0 0 "+w+" "+h
+	console.log(vb)
+	this.$.mahjong.setAttribute("viewBox", vb)
+
 	// game
 	let game = MahjongGame(this, layout, tiles, prefs, game_seed)
 
