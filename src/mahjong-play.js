@@ -62,7 +62,7 @@ function MahjongLayout(root, map) {
 	// ie, those which are obscured are drawn before those which obscure
 	get_slots : function() { return slots },
 	// find the slots in a z layer in render order
-	layer_slots : function(z) { return layers[z] },
+	layer_slots : function(z) { return layers[z] || [] },
 	// expand the layout map description
 	expand_layout : function(part) {
 	    if (part.type === "tile") {
@@ -122,14 +122,17 @@ function MahjongLayout(root, map) {
 	    // initialize slot
 	    this.set_slot(xyz, null)
 	    for (let [tag, val] of [
+		["z-shadow", []],
 		["x-adjacent", []],
 		["x-closure", []],
 		["left-adjacent", []],
 		["right-adjacent", []],
-		["z-shadow", []],
 		["endcap", false],
 		["naked-endcap", false],
-		["triple-point", false]
+		["triple-point", false],
+		["row-closure", []],
+		["left-closure", []],
+		["right-closure", []]
 	    ]) {
 		this.set(xyz, tag, val)
 	    }
@@ -152,9 +155,7 @@ function MahjongLayout(root, map) {
 		return abs(x1-x2) < 0.25 && abs(y1-y2) < 0.25
 	    }
 	    for (let s of layers[z1]) if (slot_equal(s)) return s
-	    console.log("failed to find slot for "+x1+","+y1+","+z1)
-	    console.log(this.slots_to_string(layers[z1]))
-	    throw("failed to find slots")
+	    return null
 	},
 	// compute the x-adjacent set of the tile
 	compute_x_adjacent : function(xyz) {
@@ -163,8 +164,8 @@ function MahjongLayout(root, map) {
 		let xn = x+dx
 		for (dy of [-0.5, 0, 0.5]) {
 		    let yn = y+dy
-		    // NB - are xn and yn congruent to slots?
 		    let xnynzn = this.find_slot(xn, yn, z)
+		    if (xnynzn == null) continue
 		    if ( ! this.exists_slot(xnynzn)) continue
 		    this.add_x_adjacent(xyz,xnynzn)
 		    if (xn-x < 0) this.add_left_adjacent(xyz, xnynzn)
@@ -327,7 +328,8 @@ function MahjongLayout(root, map) {
 	    return true
 	},
 	is_covered_in_z : function(slot) {
-	    for (s of this.layer_slots(slot_z(slot)+1)) {
+	    let [x,y,z] = slot
+	    for (s of this.layer_slots(z+1)) {
 		if (this.is_filled(s) && this.z_shadow(s).indexOf(slot) >= 0) {
 		    return true
 		}
@@ -336,6 +338,9 @@ function MahjongLayout(root, map) {
 	},
 	is_covered_in_x : function(slot) {
 	    if (this.is_endcap(slot)) { return false }
+	    // console.log("is_covered_in_x "+slot.join(","))
+	    // console.log("left_adjacent "+this.left_adjacent(slot).map((x) => x.join(",")).join(";"))
+	    // console.log("right_adjacent "+this.right_adjacent(slot).map((x) => x.join(",")).join(";"))
 	    if (this.all_empty_left_adjacent(slot)) { return false }
 	    if (this.all_empty_right_adjacent(slot)) { return false }
 	    return true
@@ -373,9 +378,13 @@ function MahjongLayout(root, map) {
 	    // but the growth cannot cross a boundary between different 
 	    // numbers of rows except when the crossing into row(s) is(are)
 	    // completely covered by the crossing out of row(s)
+	    console.log("covers_empty_in_x "+slot.join(","))
 	    let x = this.x_closure(slot)
+	    console.log("x_closure "+x.map((s) => s.join(",")).join(";"))
 	    let n = x.length
+	    console.log("n "+n)
 	    let ne = x.map((s) => (this.is_empty(s)?1:0)).reduce((a,b)=>(a+b))
+	    console.log("ne "+ne)
 	    // entirely empty, any slot will do
 	    if (ne === n) { return false }
 	    // one slot left, it will do
@@ -404,7 +413,7 @@ function MahjongLayout(root, map) {
 		// then if we are adjacent to a filled slot, okay,
 		// else not okay
 		if (this.all_filled_left_adjacent(slot)) {
-		    return 0
+		    return false
 		} else if (this.all_filled_right_adjacent(slot)) {
 		    return false
 		} 
@@ -640,7 +649,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
     
     let game = {
 	// options 
-	trace: false,
+	trace: true,
 	infinite: false,
 	watch: true,
 	raw_deal: true,
@@ -1155,10 +1164,10 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		    
 		    // test for forward playability
 		    if ( ! this.can_play(slot1)) {
-			this.trace_puts("proposed move slot1 "+slot1+" cannot play")
+			this.trace_puts("proposed move slot1 "+slot1.join(",")+" cannot play "+name1)
 			break
 		    } else if ( ! this.can_play(slot2)) {
-			this.trace_puts("proposed move slot2 "+slot2+" cannot play")
+			this.trace_puts("proposed move slot2 "+slot2.join(",")+" cannot play "+name2)
 			break
 		    } else if ( ! this.match(name1, name2)) {
 			this.trace_puts("proposed move mismatches "+name1+" and "+name2)
@@ -1168,7 +1177,8 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		// this counts the undealt tiles in a deal that fails
 		if (names.length > 0) {
 		    this.trace_puts( "broke deal loop with "+names.length+" tiles remaining")
-		    this.new_game()
+		    // temporary fix this.new_game()
+		    this.raise_in_render_order()
 		    return
 		}
 		// make and save the history of the play
@@ -1310,7 +1320,9 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    this.set_name_slot(name, slot)
 	    this.draw(slot, name)
 	    this.show(slot, name, "plain")
-	    root.$[name].onclick = function() { game.onclick(slot, name) }
+	    // root.$[name].onclick = function() { game.onclick(slot, name) }
+	    root.$[name+"-bg"].onclick = function() { game.onclick(slot, name) }
+	    root.$[name+"-fg"].onclick = function() { game.onclick(slot, name) }
 	    // this.raise_in_render_order()
 	    remaining_tiles += 1
 	},
@@ -1461,7 +1473,6 @@ Polymer({
 	let w = Math.floor((layw+1)*facew+offx)
 	let h = Math.floor((layh+1)*faceh+offy)
 	let vb = "0 0 "+w+" "+h
-	console.log(vb)
 	this.$.mahjong.setAttribute("viewBox", vb)
 
 	// game
