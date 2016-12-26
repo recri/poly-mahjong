@@ -19,6 +19,10 @@ function MahjongLayout(root, map) {
     function slot_x(slot) { return slot[0] }
     function slot_y(slot) { return slot[1] }
     function slot_z(slot) { return slot[2] }
+    function slot_string(slot) { return slot.join(",") }
+    function xy_set_string(set) { return "["+set.map((s) => slot_string(s.slice(0,2))).join("; ")+"]" }
+    function slot_set_string(set) { return "["+set.map((s) => slot_string(s)).join("; ")+"]" }
+
     let slots = []
     let layers = []
     let width = 11
@@ -45,7 +49,7 @@ function MahjongLayout(root, map) {
 	    if ( ! this.exists(xyz, tag)) this.set(xyz, tag, [])
 	    this.get(xyz,tag).push(val);
 	},
-
+	string : (xyz) => slot_string(xyz),
 	// maintaining the primary slot in the layout
 	// this is the only one that changes after the layout is setup
 	// note that slot is always xyz
@@ -213,7 +217,7 @@ function MahjongLayout(root, map) {
 		}
 	    }
 	    if (this.exists(xyz, "triple-point-lrr")) {
-		[t,l,r1,r1] = this.get(xyz, "triple-point-lrr")
+		[t,l,r1,r2] = this.get(xyz, "triple-point-lrr")
 		let cl = this.all_empty(this.left_closure(l))
 		let cr1 = this.all_empty(this.right_closure(r1))
 		let cr2 = this.all_empty(this.right_closure(r2))
@@ -227,6 +231,15 @@ function MahjongLayout(root, map) {
 	    }
 	    return false
 	},
+	// a relation is a list of slots which are so related
+	// sort into z layers, then by x, then by y
+	sort_slots : function(rel) {
+	    return rel.sort((a,b) => (a[2] != b[2] ? a[2]-b[2] : a[0] != b[0] ? a[0]-b[0] : a[1]-b[1]))
+	},
+	// join two relations, simply eliminate duplicates
+	join_relation : function(r1, r2) {
+	    return this.sort_slots(r1.concat(r2.filter(s => r1.indexOf(s) < 0)))
+	},
 	// find the z-shadow cast by this tile on the next layer
 	compute_z_shadow : function(xyz) {
 	    let [x,y,z] = xyz
@@ -236,8 +249,8 @@ function MahjongLayout(root, map) {
 		let x1 = x+0.5
 		let y0 = y-0.5
 		let y1 = y+0.5
-		for (slot of this.layer_slots(z-1)) {
-		    let [nx,ny,nz] = slot
+		for (slot of this.layer_slots(z-1)) {	
+	    let [nx,ny,nz] = slot
 		    if ((Math.min(x1,nx+0.5)-Math.max(x0,nx-0.5)) > 0 
 			&& (Math.min(y1,ny+0.5)-Math.max(y0,ny-0.5)) > 0) {
 			shadow.push(slot)
@@ -247,7 +260,12 @@ function MahjongLayout(root, map) {
 	    this.set(xyz, "z-shadow", shadow)
 	},
 	compute_x_closure : function(xyz) {
-	    this.set(xyz, "x-closure", this.compute_relation_closure(xyz, "x-adjacent"))
+	    if (this.get(xyz, "x-closure").length == 0) {
+		let x_closure = this.compute_relation_closure(xyz, "x-adjacent")
+		for (slot of x_closure) {
+		    this.set(slot, "x-closure", x_closure)
+		}
+	    }
 	},
 	compute_relation_closure : function(xyz, relation) {
 	    let closure = new Map()
@@ -268,32 +286,16 @@ function MahjongLayout(root, map) {
 		}
 	    }
 	    // unset closure($xyz)
-	    return Array.from(closure.keys()).sort((x,y) => (x[0]-y[0]))
+	    return this.sort_slots(Array.from(closure.keys()))
 	},
 	// compute the row closure of a slot
 	compute_row_closure : function(xyz) {
-	    let rowclosure = [xyz], leftclosure = [], rightclosure = []
-	    for (lr of ["left-adjacent", "right-adjacent"]) {
-		let closure = [], nn = []
-		for (let n = this.get(xyz, lr); n.length > 0; n = nn) {
-		    nn = []
-		    for (slot of n) {
-			if (n.indexOf(slot) < 0) {
-			    closure.push(slot)
-			    for (let s of this.get(slot, lr)) nn.push(s)
-			}
-		    }
-		}
-		for (let s of closure) rowclosure.push(s)
-	    }
-	    rowclosure.sort((x,y) => (x[0]-y[0] != 0 ? x[0]-y[0] : x[1]-y[1]))
-	    for (s of rowclosure) {
-		if (s[0] <= xyz[0]) leftclosure.push(s)
-		if (s[0] >= xyz[0]) rightclosure.push(s)
-	    }
-	    this.set(xyz, "row-closure", rowclosure)
-	    this.set(xyz, "left-closure", leftclosure)
-	    this.set(xyz, "right-closure", rightclosure)
+	    let left_closure = this.compute_relation_closure(xyz, "left-adjacent")
+	    let right_closure = this.compute_relation_closure(xyz, "right-adjacent")
+	    let row_closure = this.join_relation(left_closure, right_closure)
+	    this.set(xyz, "row-closure", row_closure)
+	    this.set(xyz, "left-closure", left_closure)
+	    this.set(xyz, "right-closure", right_closure)
 	},
 	// accessors
 	z_shadow : function(xyz) { return this.get(xyz, "z-shadow") },
@@ -378,26 +380,44 @@ function MahjongLayout(root, map) {
 	    // but the growth cannot cross a boundary between different 
 	    // numbers of rows except when the crossing into row(s) is(are)
 	    // completely covered by the crossing out of row(s)
-	    console.log("covers_empty_in_x "+slot.join(","))
+	    console.log("covers_empty_in_x "+slot_string(slot))
 	    let x = this.x_closure(slot)
-	    console.log("x_closure "+x.map((s) => s.join(",")).join(";"))
 	    let n = x.length
-	    console.log("n "+n)
 	    let ne = x.map((s) => (this.is_empty(s)?1:0)).reduce((a,b)=>(a+b))
-	    console.log("ne "+ne)
 	    // entirely empty, any slot will do
-	    if (ne === n) { return false }
+	    if (ne === n) { 
+		console.log("not covers_empty_in_x -> x_closure is empty")
+		return false 
+	    }
 	    // one slot left, it will do
-	    if (ne == 1) { return false }
+	    if (ne == 1) {
+		console.log("not covers_empty_in_x -> x_closure is filled")
+		return false
+	    }
 	    // if it is an endcap slot
 	    if (this.is_endcap(slot)) {
 		// all neighbors filled, it will do else wait until they're filled
-		return ! this.all_filled(this.x_adjacent(slot))
+		if (this.all_filled(this.x_adjacent(slot))) {
+		    console.log("not covers_empty_in_x -> endcap neighbors all filled")
+		    return false
+		} else {
+		    console.log("does covers_empty_in_x -> endcap neighbors not all filled")
+		    return true
+		}
 	    }
 	    // this block is empty, but the closure is not empty
 	    if (this.all_empty(this.block(slot))) {
 		// if all our neighbors to one side are filled, then okay, else not
-		return ! (this.all_filled_left_adjacent(slot) || this.all_filled_right_adjacent(slot))
+		if (this.all_filled_left_adjacent(slot)) {
+		    console.log("not covers_empty_in_x -> block empty left neighbors all filled")
+		    return false
+		}
+		if (this.all_filled_right_adjacent(slot)) {
+		    console.log("not covers_empty_in_x -> block empty right neighbors all filled")
+		    return false
+		}
+		console.log("does covers_empty_in_x -> block empty neighbors not all filled")
+		return true
 	    }
 	    // this block is not empty
 	    // this row, and its extensions into adjoining blocks are all empty
@@ -407,14 +427,17 @@ function MahjongLayout(root, map) {
 		// but a row that is empty, then any slot in the row
 		// is acceptable, but only if the rows connected to this
 		// row in the closure are empty, too.
+		console.log("not covers_empty_in_x -> block not empty but row closure empty")
 		return false
 	    } else {
 		// if we are in a row closure that contains filled slots
 		// then if we are adjacent to a filled slot, okay,
 		// else not okay
 		if (this.all_filled_left_adjacent(slot)) {
+		    console.log("not covers_empty_in_x -> block not empty, row closure not empty, but left adjacent filled")
 		    return false
 		} else if (this.all_filled_right_adjacent(slot)) {
+		    console.log("not covers_empty_in_x -> block not empty, row closure not empty, but right adjacent filled")
 		    return false
 		} 
 		// if there is a junction where two slots are x-adjacent to one slot,
@@ -463,6 +486,24 @@ function MahjongLayout(root, map) {
     for (slot of slots) {
 	layout.compute_x_closure(slot)
 	layout.compute_row_closure(slot)
+    }
+    console.log("slot [xadj,ladj,radj,clo,lclo,rclo,xclo,endc,nend]")
+    for (slot of slots) {
+	if (slot_z(slot) != 0) break
+	let nxadj = layout.x_adjacent(slot).length
+	let nladj = layout.left_adjacent(slot).length
+	let nradj = layout.right_adjacent(slot).length
+	let nclo = layout.row_closure(slot).length
+	let nlclo = layout.left_closure(slot).length
+	let nrclo = layout.right_closure(slot).length
+	let xclo = layout.x_closure(slot).length
+	let endc = layout.is_endcap(slot)
+	let nend = layout.is_naked_endcap(slot)
+	console.log(slot_string(slot)+" ["+[nxadj,nladj,nradj,nclo,nlclo,nrclo,xclo,endc,nend].join(", ")+"]")
+	// , "x-closure", "row-closure", "left-closure", "right-closure"
+	for (rel of ["x-adjacent", "left-adjacent", "right-adjacent"]) {
+	    // console.log("  "+rel+" "+xy_set_string(layout.get(slot, rel)));
+	}
     }
     return layout
 }
@@ -1353,7 +1394,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	},
 
 	onclick : function(slot1, name1) {
-	    console.log("onclick tile "+name1+" slot "); console.log(slot)
+	    console.log("onclick tile "+name1+" slot "+layout.string(slot))
 	    // if paused return
 	    if (paused) return
 	    // if this slot is playable
