@@ -631,6 +631,8 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
     function clock_millis() { return Date.now() }
     function clock_seconds() { return Math.floor(clock_millis() / 1000) }
 
+    function slot_string(slot) { return slot.join(",") }
+
     let start_game = 0
     let start_time = 0
     let stop_time = 0
@@ -1165,7 +1167,11 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 			if (bestm != null && bestd > 7.0) {
 			    // undo $bestm
 			    this.trace_puts("undoing {"+bestm+"} at "+bestd)
-			    [moves, slots, names] = this.undo_unplayed_move(bestm[0],bestm[1],moves,slots,names)
+			    let result = this.undo_unplayed_move(bestm[0],bestm[1],moves,slots,names)
+			    console.log("undo_unplayed_move result.length="+result.length)
+			    moves = result[0]
+			    slots = result[1]
+			    names = result[2]
 			    // redo the search for slot2
 			    slot2 =  this.find_can_unplay(slots,slot1)
 			    continue
@@ -1253,7 +1259,11 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	is_an_unplayed_move : function(slot1, slot2, moves) {
 	    let i1 = moves.indexOf(slot1)
 	    let i2 = moves.indexOf(slot2)
-	    if (i1 < 0 || i2 < 0) { throw("what?") }
+	    if (i1 < 0 || i2 < 0) { 
+		console.log("is_an_unplayed_move "+slot_string(slot1)+"@"+i1+" "+slot_string(slot2)+"@"+i2)
+		return false
+		// throw("play slots are not in history")
+	    }
 	    if (Math.abs(i1-i2) == 2) {
 		if (i1 < i2 && (i1%4) == 1) { return true }
 		if (i2 < i1 && (i2%4) == 1) { return true }
@@ -1261,12 +1271,12 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    return false
 	},
 	undo_unplayed_move : function(slot1, slot2, moves, slots, names) {
-	    console.log("undo_unplayed_move")
-	    console.log(slot1)
-	    console.log(slot2)
-	    console.log(moves)
-	    console.log(slots)
-	    console.log(names)
+	    console.log("undo_unplayed_move slot1 "+slot_string(slot1)+" slot2 "+slot_string(slot2))
+	    // console.log(slot1)
+	    // console.log(slot2)
+	    // console.log(moves)
+	    // console.log(slots)
+	    // console.log(names)
 	    // get the slot indexes
 	    let i1 = moves.indexOf(slot1)
 	    let i2 = moves.indexOf(slot2)
