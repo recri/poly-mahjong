@@ -41,3 +41,14 @@
 *** Defines slots which tiles may occupy
 *** Defines which slots are selectable
 **  
+* Made into a firebase deployable
+** deploys to android, chromebook, and linux running chrome
+** installs to home page under android
+* To do list
+[ ] make svg canvas a useful size
+[ ] solve the source of laggy touches
+[ ] enable menu items
+[ ] make an end of game dialog
+[ ] make the name correct
+[ ] make the icons correct
+[ ] saved to desktop game app cannot start new game without menu
