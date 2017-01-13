@@ -11,7 +11,7 @@ function MahjongPrefs(root) {
 	load_scores: function() {
 	}
     }
-    return prefs;
+    return prefs
 }
 
 function MahjongLayout(root, map) {

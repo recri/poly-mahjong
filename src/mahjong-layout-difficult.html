@@ -1,17 +1,15 @@
 <!--
-#
-# create the layout for the "difficult" map tiles, rows, blocks, layers
-# each layer of z is drawn offset in x and y to make the tiles stack
-# layout is 7 tiles tall in y, plus a bit for the z offset,
-# and 11 tiles wide in x, add a tile for margins, so
-# take minimum of (width / 12) and ((height / 8) / 1.375)
-# (taking aspect h/w = 1.375)
-# to decide how large to make the tiles
-#
-# furthermore, the tiles, rows, and blocks in each layer
-# are laid out in render order, which wasn't true in the
-# original xml file
-#
+ create the layout for the "difficult" map tiles, rows, blocks, layers
+ each layer of z is drawn offset in x and y to make the tiles stack
+ layout is 7 tiles tall in y, plus a bit for the z offset,
+ and 11 tiles wide in x, add a tile for margins, so
+ take minimum of (width / 12) and ((height / 8) / 1.375)
+ (taking aspect h/w = 1.375)
+ to decide how large to make the tiles
+
+ furthermore, the tiles, rows, and blocks in each layer
+ are laid out in render order, which wasn't true in the
+ original xml file
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
