@@ -51,17 +51,19 @@
 	seems to be the tests for playability, which get laggy
 	when they have to go into deep thought, delays response
 	to subsequent touches
-[ ] enable menu items
-	enable them on/off according to state of game
+[x] enable menu items
+[ ] enable menu items on/off according to state of game
 [ ] make an end of game dialog
 	that presents undo/restart/new as options	
 [ ] make the name correct
 	in the desktop manifest etc
 [ ] make the icons correct
 	in the desktop manifest etc
-[ ] saved to desktop game app cannot start new game without menu
+[x] saved to desktop game app cannot start new game without menu
 	should be better now
-[ ] eliminate the play/tiles/layout/scores/prefs menu, just the play
+[x] eliminate the play/tiles/layout/scores/prefs menu, just the play
 [ ] bug in the history made for redo'ing to see generated solution
 	throws an undefined object exception
+[ ] get rid of the ALL CAPS menu names
+[ ] get rid of the transient bold menu names
 

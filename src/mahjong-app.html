@@ -18,7 +18,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
@@ -73,15 +72,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Drawer content -->
       <app-drawer>
         <app-toolbar></app-toolbar>
-        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-          <a name="play" href="/play">Play</a>
-	<!--
-          <a name="prefs" href="/prefs">Prefs</a>
-          <a name="tiles" href="/tiles">Tiles</a>
-          <a name="layouts" href="/layouts">Layouts</a>
-          <a name="scores" href="/scores">Scores</a>
-	-->
-        </iron-selector>
 	<div class="drawer-list">
 	  <paper-button id="new_game">New Game</paper-button>
 	  <paper-button id="restart_game">Restart Game</paper-button>
@@ -106,12 +96,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             fallback-selection="view404"
             role="main">
           <mahjong-play id="play" name="play"></mahjong-play>
-	  <!--
-          <mahjong-prefs name="prefs"></mahjong-prefs>
-          <mahjong-tiles name="tiles"></mahjong-tiles>
-	  <mahjong-layouts name="layouts"></mahjong-layouts>
-	  <mahjong-scores name="scores"></mahjong-scores>
-	  -->
           <mahjong-view404 name="view404"></mahjong-view404>
         </iron-pages>
       </app-header-layout>
