@@ -20,6 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="mahjong-icons.html">
 
@@ -52,7 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         color: black;
         font-weight: bold;
       }
-      .drawer-list paper-item {
+      .drawer-list paper-button {
         display: block;
         padding: 0 16px;
         text-decoration: none;
@@ -79,12 +80,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <a name="layouts" href="/layouts">Layouts</a>
           <a name="scores" href="/scores">Scores</a>
         </iron-selector>
-	<paper-menu class="drawer-list">
-	  <paper-item name="New_Game">New Game</paper-item>
-	  <paper-item name="Restart_Game">Restart Game</paper-item>
-	  <paper-item name="Undo_Move">Undo Move</paper-item>
-	  <paper-item name="Redo_Move">Redo Move</paper-item>
-	</paper-menu>
+	<div class="drawer-list">
+	  <paper-button id="new_game">New Game</paper-button>
+	  <paper-button id="restart_game">Restart Game</paper-button>
+	  <paper-button id="undo_move">Undo Move</paper-button>
+	  <paper-button id="redo_move">Redo Move</paper-button>
+	</div>
       </app-drawer>
 
       <!-- Main content -->
@@ -102,7 +103,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <mahjong-play name="play"></mahjong-play>
+          <mahjong-play id="play" name="play"></mahjong-play>
           <mahjong-prefs name="prefs"></mahjong-prefs>
           <mahjong-tiles name="tiles"></mahjong-tiles>
 	  <mahjong-layouts name="layouts"></mahjong-layouts>
@@ -141,6 +142,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _showPage404: function() {
         this.page = 'view404';
+      },
+      ready: function() {
+        let game = this
+        console.log("this.$.new_game = " + this.$.new_game)
+        this.$.new_game.onclick = function() { game.$.play.game.new_game() }
+        this.$.restart_game.onclick = function() { game.$.play.game.restart_game() }
+        this.$.undo_move.onclick = function() { game.$.play.game.undo() }
+        this.$.redo_move.onclick = function() { game.$.play.game.redo() }
       }
     });
   </script>

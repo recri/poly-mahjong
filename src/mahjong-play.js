@@ -1535,7 +1535,8 @@ Polymer({
 	this.$.mahjong.setAttribute("viewBox", vb)
 
 	// game
-	let game = MahjongGame(this, layout, tiles, prefs, game_seed)
+	this.game = MahjongGame(this, layout, tiles, prefs, game_seed)
+
 	console.log("finished in mahjong-play.ready");
     },
 });
