@@ -1,5 +1,5 @@
 function MahjongPrefs(root) {
-    let prefs = {
+    var prefs = {
 	// option file ? may not make any sense
 	// option directory ? ditto
 	save_prefs: function(array) {
@@ -23,12 +23,12 @@ function MahjongLayout(root, map) {
     function xy_set_string(set) { return "["+set.map((s) => slot_string(s.slice(0,2))).join("; ")+"]" }
     function slot_set_string(set) { return "["+set.map((s) => slot_string(s)).join("; ")+"]" }
 
-    let slots = []
-    let layers = []
-    let width = 11
-    let height = 7
+    var slots = []
+    var layers = []
+    var width = 11
+    var height = 7
 
-    let layout = {
+    var layout = {
 	// as a associative array over list values, uses the list pointer as index, cough, cough
 	layout: new Map(),
 	set: function(xyz, tag, val) {

@@ -3,10 +3,6 @@
     "shell": "src/mahjong-app.html",
     "fragments": [
 	"src/mahjong-play.html",
-	"src/mahjong-prefs.html",
-	"src/mahjong-tiles.html",
-	"src/mahjong-layouts.html",
-	"src/mahjong-scores.html",
 	"src/mahjong-view404.html"
     ],
     "sourceGlobs": [

@@ -132,7 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.page = 'view404';
       },
       ready: function() {
-        let game = this
+        var game = this
         // console.log("this.$.new_game = " + this.$.new_game)
         this.$.new_game.onclick = function() { game.$.play.game.new_game() }
         this.$.restart_game.onclick = function() { game.$.play.game.restart_game() }
