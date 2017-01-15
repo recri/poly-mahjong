@@ -9,19 +9,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../bower_components/app-route/app-location.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
-<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="mahjong-icons.html">
+<link rel="import" href="mahjong-play.html">
 
 <dom-module id="mahjong-app">
   <template>
@@ -31,75 +21,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --app-secondary-color: black;
         display: block;
       }
-      app-header {
-        color: #fff;
-        background-color: var(--app-primary-color);
-      }
-      app-header paper-icon-button {
-        --paper-icon-button-ink-color: white;
-      }
-      .drawer-list {
-        margin: 0 20px;
-      }
-      .drawer-list a {
-        display: block;
-        padding: 0 16px;
-        text-decoration: none;
-        color: var(--app-secondary-color);
-        line-height: 40px;
-      }
-      .drawer-list a.iron-selected {
-        color: black;
-        font-weight: bold;
-      }
-      .drawer-list paper-button {
-        display: block;
-        padding: 0 16px;
-        text-decoration: none;
-        color: var(--app-secondary-color);
-        line-height: 40px;
-      }
     </style>
 
-    <app-location route="{{route}}"></app-location>
-    <app-route
-        route="{{route}}"
-        pattern="/:page"
-        data="{{routeData}}"
-        tail="{{subroute}}"></app-route>
+    <mahjong-play id="play" name="play"></mahjong-play>
 
-    <app-drawer-layout fullbleed>
-      <!-- Drawer content -->
-      <app-drawer>
-        <app-toolbar></app-toolbar>
-	<div class="drawer-list">
-	  <paper-button id="new_game">New Game</paper-button>
-	  <paper-button id="restart_game">Restart Game</paper-button>
-	  <paper-button id="undo_move">Undo Move</paper-button>
-	  <paper-button id="redo_move">Redo Move</paper-button>
-	</div>
-      </app-drawer>
-
-      <!-- Main content -->
-      <app-header-layout has-scrolling-region>
-
-        <app-header condenses reveals effects="waterfall">
-          <app-toolbar>
-            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-            <div main-title>Mahjong</div>
-          </app-toolbar>
-        </app-header>
-
-        <iron-pages
-            selected="[[page]]"
-            attr-for-selected="name"
-            fallback-selection="view404"
-            role="main">
-          <mahjong-play id="play" name="play"></mahjong-play>
-          <mahjong-view404 name="view404"></mahjong-view404>
-        </iron-pages>
-      </app-header-layout>
-    </app-drawer-layout>
   </template>
 
   <script>
@@ -130,14 +55,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _showPage404: function() {
         this.page = 'view404';
-      },
-      ready: function() {
-        var game = this
-        // console.log("this.$.new_game = " + this.$.new_game)
-        this.$.new_game.onclick = function() { game.$.play.game.new_game() }
-        this.$.restart_game.onclick = function() { game.$.play.game.restart_game() }
-        this.$.undo_move.onclick = function() { game.$.play.game.undo() }
-        this.$.redo_move.onclick = function() { game.$.play.game.redo() }
       }
     });
   </script>

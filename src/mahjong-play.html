@@ -11,7 +11,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="shared-styles.html">
 
-<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 
 <dom-module id="mahjong-play">
   <template>
@@ -19,13 +23,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
 	display: block;
 	padding: 10px;
-	html, body { margin:0; padding:0; overflow:hidden }
+	html, body { margin:0; padding:0; overflow:hidden; }
 	svg { position:fixed; top:0; bottom:0; left:0; right:0; }
         svg#mahjong { fill: #323657; }
       }
+      #content {
+        position:relative; top:0px; left:0px; width:100%; height:100%;
+      }
+      paper-menu-button {
+        position:absolute; top:4px; left:4px;
+      }
+      paper-menu-button paper-icon-button {
+        color:white;
+        --paper-icon-button-ink-color: white;
+      }
+
     </style>
 
-    <div id="content" style="width: 100%; height: 100%">
+    <div id="content">
       <!-- viewBox needs to be adjusted for layout and tiles
 	   the tiles are 64x88, but some of that is overlapped by adjacent tiles,
 	   the layout is 11 tiles wide, 7 tiles tall, and 7 tiles deep,
@@ -35,7 +50,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	-->
 
       <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
-           width="100%" height="100%"
+           width="100%" height="100%" 
            viewBox="0 0 704 616"
            preserveAspectRatio="xMidYMid meet"
 	   id="mahjong">
@@ -432,7 +447,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	  </g>
 	</defs>
       </svg>
+
+      <paper-menu-button id="menubutton">
+	<paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+	<paper-menu class="dropdown-content">
+	  <paper-item id="new_game">New</paper-item>
+	  <paper-item id="restart_game">Restart</paper-item>
+	  <paper-item id="undo_move">Undo</paper-item>
+	  <paper-item id="redo_move">Redo</paper-item>
+	</paper-menu>
+      </paper-menu-button>
+
+      <paper-dialog id="youlose">
+	<h2>There are no more moves.</h2>
+	Each puzzle has at least one solution.
+	You can undo your moves and try to find the solution,
+	start the game over,
+	or start a new game.
+	<div class="buttons">
+	  <paper-button id="lose_undo" dialog-confirm>Undo</paper-button>
+	  <paper-button id="lose_restart" dialog-confirm autofocus>Restart</paper-button>
+	  <paper-button id="lose_new" dialog-confirm>New Game</paper-button>
+	</div>
+      </paper-dialog>
+      
+      <paper-dialog id="youwin">
+	<h2>You have won the game</h2>
+	<div class="buttons">
+	  <paper-button id="win_undo" dialog-confirm>Undo</paper-button>
+	  <paper-button id="win_restart" dialog-confirm>Restart</paper-button>
+	  <paper-button id="win_new" dialog-confirm autofocus>New Game</paper-button>
+	</div>
+      </paper-dialog>
     </div>
+
   </template>
 
   <script src="alea.js"></script>

@@ -979,11 +979,13 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		if (remaining_tiles > 0) {
 		    // game lost
 		    // open {restart} {new game} {undo} {quit} dialog 
-		    alert("game lost")
+		    console.log("you lose")
+		    root.$.youlose.open()
 		} else {
 		    // game won	
-	    // open scores positioned at new score
-		    alert("game won")
+		    // open scores positioned at new score
+		    console.log("you win")
+		    root.$.youwin.open()
 		}
 	    }
 	},
@@ -1535,8 +1537,27 @@ Polymer({
 	this.$.mahjong.setAttribute("viewBox", vb)
 
 	// game
-	this.game = MahjongGame(this, layout, tiles, prefs, game_seed)
+	let game = MahjongGame(this, layout, tiles, prefs, game_seed)
+	this.game = game
+
+	// menus and dialogs
+	this.$.new_game.onclick = function() { game.new_game() }
+	this.$.restart_game.onclick = function() { game.restart_game() }
+	this.$.undo_move.onclick = function() { game.undo() }
+	this.$.redo_move.onclick = function() { game.redo() }
+
+	this.$.lose_undo.onclick = function() { game.undo() }
+	this.$.lose_restart.onclick = function() { game.restart_game() }
+	this.$.lose_new.onclick = function() { game.new_game() }
+	
+	this.$.win_undo.onclick = function() { game.undo() }
+	this.$.win_restart.onclick = function() { game.restart_game() }
+	this.$.win_new.onclick = function() { game.new_game() }
 
 	console.log("finished in mahjong-play.ready");
     },
+    undo: function() { this.game.undo() },
+    redo: function() { this.game.redo() },
+    new_game: function() { this.game.new_game() },
+    restart_game: function() { this.game.restart_game() }
 });
