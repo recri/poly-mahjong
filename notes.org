@@ -52,11 +52,12 @@
 	when they have to go into deep thought, delays response
 	to subsequent touches,
 	may just be the touch gesture handling
+	not seeing it on android phone
 [x] enable menu items
-[ ] enable menu items on/off according to state of game
+[x] enable menu items on/off according to state of game
 [x] make an end of game dialog
 	that presents undo/restart/new as options	
-[ ] make the name correct
+[x] make the name correct
 	in the desktop manifest etc
 [ ] make the icons correct
 	in the desktop manifest etc
@@ -74,4 +75,8 @@
 [x] simplify mahjong-icons.html
 [x] eliminate mahjong-view404.html
 [x] mark end of game dialogs as modal to avoid dismiss by errant touch
-[ ] add styling to paper-dialog to avoid marginless display
+[x] add styling to paper-dialog to avoid marginless display
+	just enclosed the text in <p></p> and received margins
+[ ] rewrite mahjong-play.js to avoid es6 errors
+[x] eliminate offset of icon
+

@@ -1,5 +1,5 @@
 function MahjongPrefs(root) {
-    var prefs = {
+    let prefs = {
 	// option file ? may not make any sense
 	// option directory ? ditto
 	save_prefs: function(array) {
@@ -23,12 +23,12 @@ function MahjongLayout(root, map) {
     function xy_set_string(set) { return "["+set.map((s) => slot_string(s.slice(0,2))).join("; ")+"]" }
     function slot_set_string(set) { return "["+set.map((s) => slot_string(s)).join("; ")+"]" }
 
-    var slots = []
-    var layers = []
-    var width = 11
-    var height = 7
+    let slots = []
+    let layers = []
+    let width = 11
+    let height = 7
 
-    var layout = {
+    let layout = {
 	// as a associative array over list values, uses the list pointer as index, cough, cough
 	layout: new Map(),
 	set: function(xyz, tag, val) {
@@ -534,7 +534,7 @@ function MahjongTiles(root) {
 	    let [x,y,z] = slot
 	    sx = (x+0.25)*facew + z*offx
 	    sy = (y+0.25)*faceh - z*offy
-	    var translate = root.$.mahjong.createSVGTransform();
+	    let translate = root.$.mahjong.createSVGTransform();
 	    translate.setTranslate(sx,sy);
 	    root.$[name].transform.baseVal.initialize(translate)
 	    for (id of [name, name+"-bg", name+"-fg"]) {
@@ -723,29 +723,31 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	set_slot_name : (slot,name) => layout.set_slot(slot,name),
 	get_slot_name : (slot) => layout.get_slot(slot),
 	is_empty_slot : (slot) => layout.is_empty(slot),
-	get_all_slots : function() { return layout.get_slots() },
+	get_all_slots : () => layout.get_slots(),
 	get_remaining_tiles : () => tiles.get_tiles().filter((name) => (name_to_slot.get(name) != null)),
 	tile_sizes : () => tiles.sizes(),
 	layout_sizes : () => layout.sizes(),
 	xy_for_slot : (slot) => tiles.xy_for_slot(slot),
 
-	// don't worry about this, at least not yet
-	// context menu, button 3 or 2 on the background
-	// with single character accelerators on the root window
-	// method menu-build {} {
-	// }
-	// popup the menu when we are over the background
-	// method menu-popup {w x y} {
-	// }
-	// enable and disable lists of menu entries
-	menu_enable_disable : function(enable, disable) {
-	    //foreach label $enable { .m entryconfigure $label -state normal }
-	    //foreach label $disable { .m entryconfigure $label -state disabled }
+	menu_disable : function(label, disabled) {
+	    switch (label) {
+	    case "Undo": root.$.undo_move.disabled = disabled; break
+	    case "Redo": root.$.redo_move.disabled = disabled; break
+	    case "New Game": root.$.new_game.disabled = disabled; break
+	    case "Restart": root.$.restart_game.disabled = disabled; break
+	    case "Pause": break
+	    case "Continue": break
+	    case "Hint": break
+	    case "Scores": break
+	    case "Preferences": break
+	    case "Help": break
+	    default: console.log("unhandled disable "+label)
+	    }
 	},
-	// protect an accelerator from calling the entry function when disabled
-	// method menu-protect {label meth} {
-	// }
-
+	menu_enable_disable : function(enable, disable) {
+	    for (let label of enable) { this.menu_disable(label, false) }
+	    for (let label of disable) { this.menu_disable(label, true) }
+	},
 
 	first_game : function() {
 	    if (this.game != null) {
@@ -1001,39 +1003,35 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    this.menu_enable_disable([], ["Undo", "Redo"])
 	},
 	history_save_reversed : function() {
-	    let h = history
-	    return { count:0, future: h.future, items: h.items.reverse() }
+	    return { count:0, future: history.future, items: history.items.reverse() }
 	},
 	history_restore : function(h) {
 	    this.clear_selected()
 	    history = h
-	    if (h.count < h.future) {
+	    if (history.count < history.future) {
 		this.menu_enable_disable(["Undo", "Redo"], [])
 	    } else {
 		this.menu_enable_disable(["Undo"],["Redo"])
 	    }
+	    // console.log("history_restore leaves count = "+history.count+", future = "+history.future+", length = "+history.items.length)
 	},
-	history_get_count : function() { return history.count },
-	history_get_future : function() { return history.future },
-	history_get_items : function() { return history.items },
 	history_add : function(name1, slot1, name2, slot2) {
-	    let h = history
 	    this.clear_selected()
-	    if (h.items.length > h.count) {
-		h.items = h.items.slice(0, h.count-1)
+	    if (history.items.length > history.count) {
+		history.items = history.items.slice(0, history.count-1)
 	    }
-	    h.items.push([name1, slot1, name2, slot2])
-	    h.count += 1
-	    h.future = h.count
+	    history.items.push([name1, slot1, name2, slot2])
+	    history.count += 1
+	    history.future = history.count
 	    this.menu_enable_disable(["Undo"],["Redo"])
+	    // console.log("history_add leaves count = "+history.count+", future = "+history.future+", length = "+history.items.length)
 	},
 	history_undo : function() {
 	    // step back
-	    let h = history
 	    this.clear_selected()
-	    h.count -= 1
-	    this.move_place.apply(this, h.items[h.count])
-	    if (h.count > 0) {
+	    history.count -= 1
+	    this.move_place.apply(this, history.items[history.count])
+	    if (history.count > 0) {
 		this.menu_enable_disable(["Undo", "Redo"], [])
 	    } else {
 		this.menu_enable_disable(["Redo"],["Undo"])
@@ -1042,11 +1040,10 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	},
 	history_redo : function() {
 	    // step forward
-	    let h = history
 	    this.clear_selected()
-	    this.move_unplace.apply(this, h.items[h.count])
-	    h.count += 1
-	    if (h.count < h.future) {
+	    this.move_unplace.apply(this, history.items[history.count])
+	    history.count += 1
+	    if (history.count < history.future) {
 		this.menu_enable_disable(["Undo", "Redo"], [])
 	    } else {
 		this.menu_enable_disable(["Undo"],["Redo"])
@@ -1260,8 +1257,8 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		}
 		remaining_moves = this.count_moves()
 	    }
+	    this.menu_enable_disable(["New Game", "Restart", "Pause", "Hint", "Redo", "Scores", "Preferences"], ["Continue", "Undo"])
 	},
-
     
 	//
 	// unplay to avoid deadlock
@@ -1369,10 +1366,12 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	//
 	//
 	move_place : function(name1, slot1, name2, slot2) {
+	    console.log("move_place("+name1+","+slot1.join(",")+","+name2+","+slot2.join(",")+")")
 	    this.tile_place(slot1, name1)
 	    this.tile_place(slot2, name2)
 	},
 	move_unplace : function(name1, slot1, name2, slot2) {
+	    // console.log("move_unplace("+name1+","+slot1.join(",")+","+name2+","+slot2.join(",")+")")
 	    this.tile_unplace(slot1, name1)
 	    this.tile_unplace(slot2, name2)
 	},

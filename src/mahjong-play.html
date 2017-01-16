@@ -35,7 +35,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         position:relative; top:0px; left:0px; width:100%; height:100%;
       }
       paper-menu-button {
-        position:absolute; top:4px; left:4px;
+        position:absolute; top:0px; left:0px;
       }
       paper-menu-button paper-icon-button {
         color:white;
@@ -455,32 +455,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-menu-button id="menubutton">
 	<paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
 	<paper-menu class="dropdown-content">
-	  <paper-item id="new_game" on-click="menu_new">New</paper-item>
-	  <paper-item id="restart_game" on-click="menu_restart">Restart</paper-item>
-	  <paper-item id="undo_move" on-click="menu_undo">Undo</paper-item>
-	  <paper-item id="redo_move" on-click="menu_redo">Redo</paper-item>
+	  <paper-item id="new_game" on-click="menu_new" disabled>New</paper-item>
+	  <paper-item id="restart_game" on-click="menu_restart" disabled>Restart</paper-item>
+	  <paper-item id="undo_move" on-click="menu_undo" disabled>Undo</paper-item>
+	  <paper-item id="redo_move" on-click="menu_redo" disabled>Redo</paper-item>
 	</paper-menu>
       </paper-menu-button>
 
       <paper-dialog id="youlose" modal>
 	<h2>There are no more moves.</h2>
-	Each puzzle has at least one solution.
-	You can undo your moves and try to find the solution,
-	start the game over,
-	or start a new game.
+	<p>Each puzzle has at least one solution.
+	  You can undo your moves and try to find the solution,
+	  start the game over,
+	  or start a new game.</p>
 	<div class="buttons">
-	  <paper-button dialog-confirm on-click="dialog_undo">Undo</paper-button>
-	  <paper-button dialog-confirm autofocus on-click="dialog_restart">Restart</paper-button>
-	  <paper-button dialog-confirm on-click="dialog_new">New Game</paper-button>
+	  <paper-button raised dialog-confirm on-click="dialog_undo">Undo</paper-button>
+	  <paper-button raised dialog-confirm autofocus on-click="dialog_restart">Restart</paper-button>
+	  <paper-button raised dialog-confirm on-click="dialog_new">New Game</paper-button>
 	</div>
       </paper-dialog>
       
       <paper-dialog id="youwin" modal>
 	<h2>You have won the game</h2>
 	<div class="buttons">
-	  <paper-button dialog-confirm on-click="dialog_undo">Undo</paper-button>
-	  <paper-button dialog-confirm on-click="dialog_restart">Restart</paper-button>
-	  <paper-button dialog-confirm autofocus on-click="dialog_new">New Game</paper-button>
+	  <paper-button raised dialog-confirm on-click="dialog_undo">Undo</paper-button>
+	  <paper-button raised dialog-confirm on-click="dialog_restart">Restart</paper-button>
+	  <paper-button raised dialog-confirm autofocus on-click="dialog_new">New Game</paper-button>
 	</div>
       </paper-dialog>
 
