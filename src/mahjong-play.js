@@ -1548,8 +1548,8 @@ Polymer({
     menu_new: function() { this.game.new_game(); this.menu_dismiss() },
     menu_restart: function() { this.game.restart_game(); this.menu_dismiss() },
 
-    dialog_undo: function() { this.game.undo() },
-    dialog_new: function() { this.game.new_game() },
-    dialog_restart: function() { this.game.restart_game() },
+    dialog_undo: function() { console.log("dialog_undo"); this.game.undo() },
+    dialog_new: function() { console.log("dialog_new"); this.game.new_game() },
+    dialog_restart: function() { console.log("dialog_restart"); this.game.restart_game() },
 
 });

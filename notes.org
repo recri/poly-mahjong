@@ -50,7 +50,8 @@
 [ ] solve the source of laggy touches
 	seems to be the tests for playability, which get laggy
 	when they have to go into deep thought, delays response
-	to subsequent touches
+	to subsequent touches,
+	may just be the touch gesture handling
 [x] enable menu items
 [ ] enable menu items on/off according to state of game
 [x] make an end of game dialog
@@ -72,3 +73,5 @@
 [x] eliminate mahjong-app.html
 [x] simplify mahjong-icons.html
 [x] eliminate mahjong-view404.html
+[x] mark end of game dialogs as modal to avoid dismiss by errant touch
+[ ] add styling to paper-dialog to avoid marginless display

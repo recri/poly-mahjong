@@ -462,7 +462,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	</paper-menu>
       </paper-menu-button>
 
-      <paper-dialog id="youlose">
+      <paper-dialog id="youlose" modal>
 	<h2>There are no more moves.</h2>
 	Each puzzle has at least one solution.
 	You can undo your moves and try to find the solution,
@@ -475,7 +475,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	</div>
       </paper-dialog>
       
-      <paper-dialog id="youwin">
+      <paper-dialog id="youwin" modal>
 	<h2>You have won the game</h2>
 	<div class="buttons">
 	  <paper-button dialog-confirm on-click="dialog_undo">Undo</paper-button>
