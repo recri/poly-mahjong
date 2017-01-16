@@ -451,10 +451,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-menu-button id="menubutton">
 	<paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
 	<paper-menu class="dropdown-content">
-	  <paper-item id="new_game">New</paper-item>
-	  <paper-item id="restart_game">Restart</paper-item>
-	  <paper-item id="undo_move">Undo</paper-item>
-	  <paper-item id="redo_move">Redo</paper-item>
+	  <paper-item id="new_game" on-click="menu_new">New</paper-item>
+	  <paper-item id="restart_game" on-click="menu_restart">Restart</paper-item>
+	  <paper-item id="undo_move" on-click="menu_undo">Undo</paper-item>
+	  <paper-item id="redo_move" on-click="menu_redo">Redo</paper-item>
 	</paper-menu>
       </paper-menu-button>
 
@@ -465,20 +465,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	start the game over,
 	or start a new game.
 	<div class="buttons">
-	  <paper-button id="lose_undo" dialog-confirm>Undo</paper-button>
-	  <paper-button id="lose_restart" dialog-confirm autofocus>Restart</paper-button>
-	  <paper-button id="lose_new" dialog-confirm>New Game</paper-button>
+	  <paper-button dialog-confirm on-click="dialog_undo">Undo</paper-button>
+	  <paper-button dialog-confirm autofocus on-click="dialog_restart">Restart</paper-button>
+	  <paper-button dialog-confirm on-click="dialog_new">New Game</paper-button>
 	</div>
       </paper-dialog>
       
       <paper-dialog id="youwin">
 	<h2>You have won the game</h2>
 	<div class="buttons">
-	  <paper-button id="win_undo" dialog-confirm>Undo</paper-button>
-	  <paper-button id="win_restart" dialog-confirm>Restart</paper-button>
-	  <paper-button id="win_new" dialog-confirm autofocus>New Game</paper-button>
+	  <paper-button dialog-confirm on-click="dialog_undo">Undo</paper-button>
+	  <paper-button dialog-confirm on-click="dialog_restart">Restart</paper-button>
+	  <paper-button dialog-confirm autofocus on-click="dialog_new">New Game</paper-button>
 	</div>
       </paper-dialog>
+
     </div>
 
   </template>

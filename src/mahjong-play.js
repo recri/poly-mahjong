@@ -1537,27 +1537,19 @@ Polymer({
 	this.$.mahjong.setAttribute("viewBox", vb)
 
 	// game
-	let game = MahjongGame(this, layout, tiles, prefs, game_seed)
-	this.game = game
-
-	// menus and dialogs
-	this.$.new_game.onclick = function() { game.new_game() }
-	this.$.restart_game.onclick = function() { game.restart_game() }
-	this.$.undo_move.onclick = function() { game.undo() }
-	this.$.redo_move.onclick = function() { game.redo() }
-
-	this.$.lose_undo.onclick = function() { game.undo() }
-	this.$.lose_restart.onclick = function() { game.restart_game() }
-	this.$.lose_new.onclick = function() { game.new_game() }
-	
-	this.$.win_undo.onclick = function() { game.undo() }
-	this.$.win_restart.onclick = function() { game.restart_game() }
-	this.$.win_new.onclick = function() { game.new_game() }
+	this.game = MahjongGame(this, layout, tiles, prefs, game_seed)
 
 	console.log("finished in mahjong-play.ready");
     },
-    undo: function() { this.game.undo() },
-    redo: function() { this.game.redo() },
-    new_game: function() { this.game.new_game() },
-    restart_game: function() { this.game.restart_game() }
+
+    menu_dismiss: function() { this.$.menubutton.opened = false },
+    menu_undo: function() { this.game.undo(); this.menu_dismiss() },
+    menu_redo: function() { this.game.redo(); this.menu_dismiss() },
+    menu_new: function() { this.game.new_game(); this.menu_dismiss() },
+    menu_restart: function() { this.game.restart_game(); this.menu_dismiss() },
+
+    dialog_undo: function() { this.game.undo() },
+    dialog_new: function() { this.game.new_game() },
+    dialog_restart: function() { this.game.restart_game() },
+
 });

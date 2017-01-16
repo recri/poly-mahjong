@@ -53,7 +53,7 @@
 	to subsequent touches
 [x] enable menu items
 [ ] enable menu items on/off according to state of game
-[ ] make an end of game dialog
+[x] make an end of game dialog
 	that presents undo/restart/new as options	
 [ ] make the name correct
 	in the desktop manifest etc
@@ -64,6 +64,7 @@
 [x] eliminate the play/tiles/layout/scores/prefs menu, just the play
 [ ] bug in the history made for redo'ing to see generated solution
 	throws an undefined object exception
-[ ] get rid of the ALL CAPS menu names
-[ ] get rid of the transient bold menu names
+[ ] bug in the history appears to be skipping tiles	
+[x] get rid of the ALL CAPS menu names
+[x] get rid of the transient bold menu names
 
