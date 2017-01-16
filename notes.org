@@ -67,4 +67,7 @@
 [ ] bug in the history appears to be skipping tiles	
 [x] get rid of the ALL CAPS menu names
 [x] get rid of the transient bold menu names
-
+[x] dismiss menu after item selected
+[x] use polymer template on-click matching
+[ ] eliminate mahjong-app.html
+[x] simplify mahjong-icons.html
