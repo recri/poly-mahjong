@@ -69,5 +69,6 @@
 [x] get rid of the transient bold menu names
 [x] dismiss menu after item selected
 [x] use polymer template on-click matching
-[ ] eliminate mahjong-app.html
+[x] eliminate mahjong-app.html
 [x] simplify mahjong-icons.html
+[x] eliminate mahjong-view404.html
