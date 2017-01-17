@@ -81,4 +81,7 @@
 [x] eliminate offset of icon
 [ ] add keyboard accelerators to menu
 [ ] add "About" item to menu with brief dialog
+[ ] figure out why the end of game buttons are flaky
+	tried posting actions with this.async() still flaky
+	flaky meaning run/don't run for unknown reasons
 
