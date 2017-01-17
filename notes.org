@@ -64,9 +64,9 @@
 [x] saved to desktop game app cannot start new game without menu
 	should be better now
 [x] eliminate the play/tiles/layout/scores/prefs menu, just the play
-[ ] bug in the history made for redo'ing to see generated solution
+[x] bug in the history made for redo'ing to see generated solution
 	throws an undefined object exception
-[ ] bug in the history appears to be skipping tiles	
+[x] bug in the history appears to be skipping tiles	
 [x] get rid of the ALL CAPS menu names
 [x] get rid of the transient bold menu names
 [x] dismiss menu after item selected
@@ -79,4 +79,6 @@
 	just enclosed the text in <p></p> and received margins
 [ ] rewrite mahjong-play.js to avoid es6 errors
 [x] eliminate offset of icon
+[ ] add keyboard accelerators to menu
+[ ] add "About" item to menu with brief dialog
 

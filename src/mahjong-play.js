@@ -340,9 +340,6 @@ function MahjongLayout(root, map) {
 	},
 	is_covered_in_x : function(slot) {
 	    if (this.is_endcap(slot)) { return false }
-	    // console.log("is_covered_in_x "+slot.join(","))
-	    // console.log("left_adjacent "+this.left_adjacent(slot).map((x) => x.join(",")).join(";"))
-	    // console.log("right_adjacent "+this.right_adjacent(slot).map((x) => x.join(",")).join(";"))
 	    if (this.all_empty_left_adjacent(slot)) { return false }
 	    if (this.all_empty_right_adjacent(slot)) { return false }
 	    return true
@@ -380,43 +377,23 @@ function MahjongLayout(root, map) {
 	    // but the growth cannot cross a boundary between different 
 	    // numbers of rows except when the crossing into row(s) is(are)
 	    // completely covered by the crossing out of row(s)
-	    // console.log("covers_empty_in_x "+slot_string(slot))
 	    let x = this.x_closure(slot)
 	    let n = x.length
 	    let ne = x.map((s) => (this.is_empty(s)?1:0)).reduce((a,b)=>(a+b))
 	    // entirely empty, any slot will do
-	    if (ne === n) { 
-		// console.log("not covers_empty_in_x -> x_closure is empty")
-		return false 
-	    }
+	    if (ne === n) { return false }
 	    // one slot left, it will do
-	    if (ne == 1) {
-		// console.log("not covers_empty_in_x -> x_closure is filled")
-		return false
-	    }
+	    if (ne == 1) { return false }
 	    // if it is an endcap slot
 	    if (this.is_endcap(slot)) {
 		// all neighbors filled, it will do else wait until they're filled
-		if (this.all_filled(this.x_adjacent(slot))) {
-		    // console.log("not covers_empty_in_x -> endcap neighbors all filled")
-		    return false
-		} else {
-		    // console.log("does covers_empty_in_x -> endcap neighbors not all filled")
-		    return true
-		}
+		return ! (this.all_filled(this.x_adjacent(slot)))
 	    }
 	    // this block is empty, but the closure is not empty
 	    if (this.all_empty(this.block(slot))) {
 		// if all our neighbors to one side are filled, then okay, else not
-		if (this.all_filled_left_adjacent(slot)) {
-		    // console.log("not covers_empty_in_x -> block empty left neighbors all filled")
-		    return false
-		}
-		if (this.all_filled_right_adjacent(slot)) {
-		    // console.log("not covers_empty_in_x -> block empty right neighbors all filled")
-		    return false
-		}
-		// console.log("does covers_empty_in_x -> block empty neighbors not all filled")
+		if (this.all_filled_left_adjacent(slot)) { return false }
+		if (this.all_filled_right_adjacent(slot)) { return false }
 		return true
 	    }
 	    // this block is not empty
@@ -427,17 +404,14 @@ function MahjongLayout(root, map) {
 		// but a row that is empty, then any slot in the row
 		// is acceptable, but only if the rows connected to this
 		// row in the closure are empty, too.
-		// console.log("not covers_empty_in_x -> block not empty but row closure empty")
 		return false
 	    } else {
 		// if we are in a row closure that contains filled slots
 		// then if we are adjacent to a filled slot, okay,
 		// else not okay
 		if (this.all_filled_left_adjacent(slot)) {
-		    // console.log("not covers_empty_in_x -> block not empty, row closure not empty, but left adjacent filled")
 		    return false
 		} else if (this.all_filled_right_adjacent(slot)) {
-		    // console.log("not covers_empty_in_x -> block not empty, row closure not empty, but right adjacent filled")
 		    return false
 		} 
 		// if there is a junction where two slots are x-adjacent to one slot,
@@ -486,24 +460,6 @@ function MahjongLayout(root, map) {
     for (slot of slots) {
 	layout.compute_x_closure(slot)
 	layout.compute_row_closure(slot)
-    }
-    // console.log("slot [xadj,ladj,radj,clo,lclo,rclo,xclo,endc,nend]")
-    for (slot of slots) {
-	if (slot_z(slot) != 0) break
-	let nxadj = layout.x_adjacent(slot).length
-	let nladj = layout.left_adjacent(slot).length
-	let nradj = layout.right_adjacent(slot).length
-	let nclo = layout.row_closure(slot).length
-	let nlclo = layout.left_closure(slot).length
-	let nrclo = layout.right_closure(slot).length
-	let xclo = layout.x_closure(slot).length
-	let endc = layout.is_endcap(slot)
-	let nend = layout.is_naked_endcap(slot)
-	// console.log(slot_string(slot)+" ["+[nxadj,nladj,nradj,nclo,nlclo,nrclo,xclo,endc,nend].join(", ")+"]")
-	// , "x-closure", "row-closure", "left-closure", "right-closure"
-	// for (rel of ["x-adjacent", "left-adjacent", "right-adjacent"]) {
-	    // console.log("  "+rel+" "+xy_set_string(layout.get(slot, rel)));
-	// }
     }
     return layout
 }
@@ -554,7 +510,6 @@ function MahjongTiles(root) {
 	},
 	hide : function(slot, name) {
 	    if (name != null) {
-		// console.log("hide(slot, "+name+")")
 		root.$[name].style.display = "none"
 	    }
 	},
@@ -1013,18 +968,16 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    } else {
 		this.menu_enable_disable(["Undo"],["Redo"])
 	    }
-	    // console.log("history_restore leaves count = "+history.count+", future = "+history.future+", length = "+history.items.length)
 	},
 	history_add : function(name1, slot1, name2, slot2) {
 	    this.clear_selected()
-	    if (history.items.length > history.count) {
-		history.items = history.items.slice(0, history.count-1)
+	    while (history.items.length > history.count) {
+		history.items.pop()
 	    }
 	    history.items.push([name1, slot1, name2, slot2])
 	    history.count += 1
 	    history.future = history.count
 	    this.menu_enable_disable(["Undo"],["Redo"])
-	    // console.log("history_add leaves count = "+history.count+", future = "+history.future+", length = "+history.items.length)
 	},
 	history_undo : function() {
 	    // step back
@@ -1063,11 +1016,8 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    if (typeof game === "undefined") { game = clock_seconds() }
 	    game_seed = game
 	    srandom(game_seed)
-	    // console.log(this.get_all_slots())
 	    shuffled_slots = shuffle(this.get_all_slots())
 	    shuffled_tiles = shuffle(this.get_tiles())
-	    // console.log("shuffled_slots"); console.log(shuffled_slots)
-	    // console.log("shuffled_tiles"); console.log(shuffled_tiles)
 	    this.start_status()
 	},
     
@@ -1124,7 +1074,6 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		    // take first and second tiles in name list
 		    let name1 = names.shift()
 		    let name2 = names.shift()
-		    // console.log("name1 "+name1+", name2 "+name2)
 		    // take first open slot in slot list
 		    let slot1 = this.find_can_unplay(slots)
 		    if (slot1 == null) {
@@ -1138,7 +1087,9 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		    // put the first tile in its slot
 		    this.tile_place(slot1, name1)
 		    moves.push(name1, slot1)
-		    
+		    if (moves.length != 2 * (144-slots.length)) {
+			throw("moves.length "+moves.length+" != 2*(144-slots.length) "+2*(144-slots.length))
+		    }
 		    // if (this.watch) this.update
 
 		    // take next open slot in slot list
@@ -1176,7 +1127,6 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 			    // undo $bestm
 			    this.trace_puts("undoing {"+bestm+"} at "+bestd)
 			    let result = this.undo_unplayed_move(bestm[0],bestm[1],moves,slots,names)
-			    // console.log("undo_unplayed_move result.length="+result.length)
 			    moves = result[0]
 			    slots = result[1]
 			    names = result[2]
@@ -1215,6 +1165,10 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		    // make backwards history
 		    moves.push(name2, slot2)
 		    
+		    if (moves.length != 2 * (144-slots.length)) {
+			throw("moves.length "+moves.length+" != 2*(144-slots.length) "+2*(144-slots.length))
+		    }
+
 		    // if (this.watch) this.update
 		    
 		    // test for forward playability
@@ -1248,12 +1202,9 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		// raise slots in render order
 		this.raise_in_render_order()
 		
-		// adjust window
-		// $self adjust-window $win
-		
 		// compute
 		if (remaining_tiles != this.get_remaining_tiles().length) {
-		    console.log("remaining-tiles "+remaining_tiles+" !=  llength get-remaining-tiles "+this.get_remaining_tiles().length)
+		    throw("remaining-tiles "+remaining_tiles+" !=  llength get-remaining-tiles "+this.get_remaining_tiles().length)
 		}
 		remaining_moves = this.count_moves()
 	    }
@@ -1267,9 +1218,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    let i1 = moves.indexOf(slot1)
 	    let i2 = moves.indexOf(slot2)
 	    if (i1 < 0 || i2 < 0) { 
-		// console.log("is_an_unplayed_move "+slot_string(slot1)+"@"+i1+" "+slot_string(slot2)+"@"+i2)
 		return false
-		// throw("play slots are not in history")
 	    }
 	    if (Math.abs(i1-i2) == 2) {
 		if (i1 < i2 && (i1%4) == 1) { return true }
@@ -1278,12 +1227,6 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    return false
 	},
 	undo_unplayed_move : function(slot1, slot2, moves, slots, names) {
-	    // console.log("undo_unplayed_move slot1 "+slot_string(slot1)+" slot2 "+slot_string(slot2))
-	    // console.log(slot1)
-	    // console.log(slot2)
-	    // console.log(moves)
-	    // console.log(slots)
-	    // console.log(names)
 	    // get the slot indexes
 	    let i1 = moves.indexOf(slot1)
 	    let i2 = moves.indexOf(slot2)
@@ -1309,7 +1252,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    //#$self set-name-slot $name1 {}
 	    //#$self set-name-slot $name2 {}
 	    // remove the move from $moves
-	    moves = moves.splice(j1,4)
+	    moves.splice(j1,4)
 	    // return the slots to $slots
 	    slots.push(slot1, slot2)
 	    // return the tiles to $names
@@ -1366,12 +1309,10 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	//
 	//
 	move_place : function(name1, slot1, name2, slot2) {
-	    console.log("move_place("+name1+","+slot1.join(",")+","+name2+","+slot2.join(",")+")")
 	    this.tile_place(slot1, name1)
 	    this.tile_place(slot2, name2)
 	},
 	move_unplace : function(name1, slot1, name2, slot2) {
-	    // console.log("move_unplace("+name1+","+slot1.join(",")+","+name2+","+slot2.join(",")+")")
 	    this.tile_unplace(slot1, name1)
 	    this.tile_unplace(slot2, name2)
 	},
@@ -1413,7 +1354,6 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	},
 
 	onclick : function(slot1, name1) {
-	    // console.log("onclick tile "+name1+" slot "+layout.string(slot))
 	    // if paused return
 	    if (paused) return
 	    // if this slot is playable
@@ -1547,8 +1487,8 @@ Polymer({
     menu_new: function() { this.game.new_game(); this.menu_dismiss() },
     menu_restart: function() { this.game.restart_game(); this.menu_dismiss() },
 
-    dialog_undo: function() { console.log("dialog_undo"); this.game.undo() },
-    dialog_new: function() { console.log("dialog_new"); this.game.new_game() },
-    dialog_restart: function() { console.log("dialog_restart"); this.game.restart_game() },
+    dialog_undo: function() { this.game.undo() },
+    dialog_new: function() { this.game.new_game() },
+    dialog_restart: function() { this.game.restart_game() },
 
 });
