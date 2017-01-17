@@ -726,8 +726,8 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		try {
 		    this.restart()
 		} catch(e) {
-		    console.log("restart failed: "+e)
-		    console.log("reshuffling and retrying")
+		    // console.log("restart failed: "+e)
+		    // console.log("reshuffling and retrying")
 		    shuffled_slots = shuffle(shuffled_slots)
 		    done = false
 		}
@@ -936,12 +936,12 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 		if (remaining_tiles > 0) {
 		    // game lost
 		    // open {restart} {new game} {undo} {quit} dialog 
-		    console.log("you lose")
+		    // console.log("you lose")
 		    root.$.youlose.open()
 		} else {
 		    // game won	
 		    // open scores positioned at new score
-		    console.log("you win")
+		    // console.log("you win")
 		    root.$.youwin.open()
 		}
 	    }
@@ -1264,6 +1264,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	// game play/unplay mechanics
 	//
 	find_slots_in_play : function() {
+	    // return this.get_all_slots().filter((slot) => ! this.is_empty_slot(slot))
 	    let slots = []
 	    for (let s of this.get_all_slots()) if ( ! this.is_empty_slot(s)) slots.push(s)
 	    return slots
@@ -1285,13 +1286,10 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	trace_puts : function(str) { if (this.trace) console.log(str) },
 	find_can_unplay : function(slots, donotblock) {
 	    for(let slot of slots) if (this.can_unplay(slot, donotblock)) return slot
-	    // $self trace-puts "cannot unplay donotblock={$donotblock}: all={[$self find-all-can-unplay $slots]} [$self stats-for-slots $slots]"
-	    // $self trace-puts "  slots={$slots}"
-	    // $self trace-puts "  moves={[uplevel {set moves}]}"
 	    return null
-	    throw("cannot unplay")
 	},
 	find_all_can_unplay : function(slots, donotblock) {
+	    // return slots.filter((slot) => this.can_unplay(slot, donotblock))
 	    let all = []
 	    for (let slot of slots) if (this.can_unplay(slot, donotblock)) all.push(slot)
 	    return all
@@ -1301,6 +1299,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    throw("cannot play")
 	},
 	find_all_can_play : function(slots) {
+	    // return slots.filter((slot) => this.can_play(slot))
 	    let all = []
 	    for (let slot of slots) if (this.can_play(slot)) all.push(slot)
 	    return all
@@ -1478,7 +1477,7 @@ Polymer({
 	// game
 	this.game = MahjongGame(this, layout, tiles, prefs, game_seed)
 
-	console.log("finished in mahjong-play.ready");
+	// console.log("finished in mahjong-play.ready");
     },
 
     menu_dismiss: function() { this.$.menubutton.opened = false },
