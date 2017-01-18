@@ -1,19 +1,3 @@
-function MahjongPrefs(root) {
-    let prefs = {
-	// option file ? may not make any sense
-	// option directory ? ditto
-	save_prefs: function(array) {
-	},
-	load_prefs: function() {
-	},
-	save_scores: function(list) {
-	},
-	load_scores: function() {
-	}
-    }
-    return prefs
-}
-
 function MahjongLayout(root, map) {
     // better to just use [x,y,z] = slot
     function slot_x(slot) { return slot[0] }
@@ -493,10 +477,6 @@ function MahjongTiles(root) {
 	    let translate = root.$.mahjong.createSVGTransform();
 	    translate.setTranslate(sx,sy);
 	    root.$[name].transform.baseVal.initialize(translate)
-	    for (id of [name, name+"-bg", name+"-fg"]) {
-		//root.$[id].x.baseVal.value = sx
-		//root.$[id].y.baseVal.value = sy
-	    }
 	    root.$[name].style.display = ""
 	},
 	show : function(slot, name, tag) {
@@ -535,6 +515,7 @@ function MahjongTiles(root) {
 	root.$[bg.id] = bg
 	root.$[fg.id] = fg
 	root.$[id] = tile
+	root.$[id].onclick = function() { root.tile_tap(id) }
 
 	return id
     }
@@ -549,7 +530,7 @@ function MahjongTiles(root) {
     return self
 }
 
-function MahjongGame(root, layout, tiles, prefs, game_seed) {
+function MahjongGame(root, layout, tiles, game_seed) {
     // local variables
     let title = "mahjong"
     let shuffled_tiles = null
@@ -597,21 +578,20 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	start_time = 0
 	stop_time = 0
     }
-    function start_timer() {
-	if (start_time == 0) { start_time = clock_seconds() }
-    }
-    function stop_timer() {
-	if (stop_time == 0) { stop_time = clock_seconds() }
-    }
-    function pause_timer() {
-	if (stop_time == 0) { stop_time = clock_seconds() }
-    }
+
+    function start_timer() { if (start_time == 0) { start_time = clock_seconds() } }
+
+    function stop_timer() { if (stop_time == 0) { stop_time = clock_seconds() } }
+
+    function pause_timer() { if (stop_time == 0) { stop_time = clock_seconds() } }
+
     function continue_timer() {
 	if (stop_time != 0) { 
 	    start_time = clock_seconds()-(stop_time-start_time)
 	    stop_time = 0
 	}
     }
+
     function elapsed_time() {
 	if (start_time == 0) return 0
 	if (stop_time != 0) return stop_time-start_time
@@ -626,6 +606,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	}
 	return n
     }
+
     function format_game (game) {
 	let format = []
 	let a = 'a'.charCodeAt(0)
@@ -699,6 +680,7 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    default: console.log("unhandled disable "+label)
 	    }
 	},
+
 	menu_enable_disable : function(enable, disable) {
 	    for (let label of enable) { this.menu_disable(label, false) }
 	    for (let label of disable) { this.menu_disable(label, true) }
@@ -734,128 +716,10 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    }
 	},
 	restart_game : function() { this.restart() },
-	pause_game : function() {
-	    this.clear-selected()
-	    paused = true
-	    pause_timer()
-	    for (let tile of this.get_remaining_tiles()) { this.show(this.get_name_slot(tile), tile, "blank") }
-	    this.menu_enable_disable(["Continue"], ["New Game", "Restart", "Pause", "Hint", "Undo", "Redo", "Scores", "Preferences", "Help"])
-	},
-	continue_game : function() {
-	    this.menu_enable_disable(["New Game", "Restart", "Pause", "Hint", "Undo", "Redo", "Scores", "Preferences"], ["Continue"])
-	    for (let tile of this.get_remaining_tiles()) { this.show(this.get_name_slot(tile), tile, "plain") }
-	    continue_timer()
-	    paused = false
-	},
-	hint : function() {
-	    let slots = this.find_moves()
-	    if (slots.length > 0) {
-		hint += 1
-		let slot = slots[hint % slots.length]
-		this.set_selected(slot, this.get_slot_name(slot))
-	    }
-	},
-	undo : function() { this.history_undo() },
-	redo : function() { this.history_redo() },
-	menu_menu : function() { this.menu_popup() },
-	scores : function() { this.scores_window() },
-	scores_window : function() {
-	    // toplevel .scores
-	    // wm title .scores {Scores}
-	    //	pack [ttk::button .scores.close -text Close -command [list destroy .scores]] -side top
-	},
-	preferences : function() {
-	    // toplevel .preferences
-	    // wm title .preferences {Preferences}
-	    // foreach opt {watch raw-deal trace} {
-	    // pack [ttk::checkbutton .preferences.$opt -text $opt -variable [myvar options(-$opt)]] -side top -expand true -fill x
-	    // }
-	    // pack [ttk::button .preferences.close -text Close -command [list destroy .preferences]] -side top
-	    // #report-option-classes .preferences
-	},
-	help : function() { 
-	    // toplevel .help
-	    // wm title .help {Help}
-	    // grid [text .help.text -yscrollcommand [list .help.scrollbar set]] -column 0 -row 0 -sticky nsew
-	    // foreach t {
-	    // {Mahjong solitaire is played by selecting matching pairs of tiles and removing them from the layout.}
-	    // {}
-	    // {The layout is constructed so that there is always at least one solution.}
-	    // {}
-	    // {The controls are available as hot key commands or from a right mouse menu on the game's background.}
-	    // } {
-	    // .help.text insert end $t\n
-	    // }
-	    // grid [ttk::scrollbar .help.scrollbar -orient vertical -command [list .help.text yview]] -column 1 -row 0 -sticky ns
-	    // grid [ttk::button .help.close -text Close -command [list destroy .help]] -column 0 -row 1 -columnspan 2
-	},
-	by_name : function() {
-	    // toplevel .byname
-	    // wm title .byname {By Name}
-	    // grid [ttk::label .byname.l -text {Choose game by name}] -row 1 -column 0 -columnspan 2 -sticky ew 
-	    // grid [ttk::entry .byname.e] -row 2 -column 0 -columnspan 2 -sticky ew
-	    // .byname.e insert end [format-game $options(-game)]
-	    // grid [ttk::button .byname.okay -text Okay -command [mymethod by-name-okay]] -row 3 -column 0 -sticky ew
-	    // grid [ttk::button .byname.cancel -text Cancel -command [list destroy .byname]] -row 3 -column 1 -sticky ew
-	    // #report-option-classes .byname
-	},
-	by_name_okay : function(how) {
-	    // set options(-game) [scan-game [.byname.e get]]
-	    // destroy .byname
-	    // $self new-game $options(-game)
-	},
-	draw_frame : function(level) {
-	    // $win delete frame
-	    // foreach {twid thgt xstep ystep fwid fhgt} [$self tile-sizes] break
-	    // foreach slot [$self layer-slots $level] {
-	    // foreach {x y} [$self xy-for-slot $slot] break
-	    // set x [expr {$x+$xstep}]
-	    // $win create rectangle $x $y [expr {$x+$fwid}] [expr {$y+$fhgt}] -fill {} -outline white -tags frame
-	    // $win create text [expr {$x+10}] [expr {$y+$ystep+10}] -anchor nw -text $slot -fill white -tags frame
-	    // }
-	    // $win lower frame
-	    // $win move frame {*}$options(-offsets)
-	},
-	
-	quit_game : function() { 
-	    // destroy .
-	},
-	
-	destroy_window : function(window) {
-	    // if {$window ne $win} return
-	    this.score_gamed_save()
-	    this.save_prefs()
-	},
-    
-	save_prefs : function() {
-	    this.prefs.save_prefs([
-		// "zoomed", this.zoomed,
-		// "fullscreen", this.fullscreen,
-		// "geometry", [wm geometry .]
-		// watch $options(-watch)
-		// raw-deal $options(-raw-deal)
-		// trace $options(-trace)
-	    ])
-	},
-	save_scores : function() {
-	    this.prefs.save_scores(scores)
-	},
-	load_prefs : function() {
-	    // #puts "enter load-prefs in mahjong::canvas"
-	    // let prefs this.prefs.load_prefs()
-	    // #puts "load-prefs prefs are {[array get prefs]}"
-	    // foreach v {watch trace raw-deal} {
-	    // if {[info exists prefs($v)]} {
-	    // set options(-$v) $prefs($v)
-	    // }
-	    // }
-	},
-	load_scores : function() {
-	    scores = this.prefs.load_scores()
-	},
-	// ##
-	// ## game play helpers
-	// ##
+
+	//
+	// game play helpers
+	//
 	get_items : function() { return this.items },
     
 	sort_matching : function(names) {
@@ -1320,10 +1184,6 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    this.set_name_slot(name, slot)
 	    this.draw(slot, name)
 	    this.show(slot, name, "plain")
-	    // root.$[name].onclick = function() { game.onclick(slot, name) }
-	    root.$[name+"-bg"].onclick = function() { game.onclick(slot, name) }
-	    root.$[name+"-fg"].onclick = function() { game.onclick(slot, name) }
-	    // this.raise_in_render_order()
 	    remaining_tiles += 1
 	},
 	tile_unplace : function(slot, name) {
@@ -1352,7 +1212,8 @@ function MahjongGame(root, layout, tiles, prefs, game_seed) {
 	    selected = [slot, name]
 	},
 
-	onclick : function(slot1, name1) {
+	tile_tap : function(name1) {
+	    let slot1 = this.get_name_slot(name1)
 	    // if paused return
 	    if (paused) return
 	    // if this slot is playable
@@ -1460,9 +1321,6 @@ Polymer({
 	// tile images
 	let tiles = MahjongTiles(this)
 
-	// preferences
-	let prefs = MahjongPrefs(this)
-
 	// seed, should be web parameter
 	let game_seed = null
 	
@@ -1475,12 +1333,16 @@ Polymer({
 	this.$.mahjong.setAttribute("viewBox", vb)
 
 	// game
-	this.game = MahjongGame(this, layout, tiles, prefs, game_seed)
+	this.game = MahjongGame(this, layout, tiles, game_seed)
 
 	// console.log("finished in mahjong-play.ready");
     },
 
+    // event handlers
+    tile_tap: function(name) { this.game.tile_tap(name) },
+
     menu_dismiss: function() { this.$.menubutton.opened = false },
+
     menu_undo: function() { this.game.undo(); this.menu_dismiss() },
     menu_redo: function() { this.game.redo(); this.menu_dismiss() },
     menu_new: function() { this.game.new_game(); this.menu_dismiss() },
