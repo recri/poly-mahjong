@@ -78,10 +78,13 @@
 [x] add styling to paper-dialog to avoid marginless display
 	just enclosed the text in <p></p> and received margins
 [ ] rewrite mahjong-play.js to avoid es6 errors
+	or keep it as is until es6 handled in polymer-2.0
 [x] eliminate offset of icon
 [ ] add keyboard accelerators to menu
 [ ] add "About" item to menu with brief dialog
 [ ] figure out why the end of game buttons are flaky
 	tried posting actions with this.async() still flaky
 	flaky meaning run/don't run for unknown reasons
+	moved button and menu events to polymer's tap event
+	no such event for the svg dom
 

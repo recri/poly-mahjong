@@ -717,6 +717,9 @@ function MahjongGame(root, layout, tiles, game_seed) {
 	},
 	restart_game : function() { this.restart() },
 
+	undo : function() { this.history_undo() },
+	redo : function() { this.history_redo() },
+	
 	//
 	// game play helpers
 	//
@@ -839,7 +842,7 @@ function MahjongGame(root, layout, tiles, game_seed) {
 		history.items.pop()
 	    }
 	    history.items.push([name1, slot1, name2, slot2])
-	    history.count += 1
+
 	    history.future = history.count
 	    this.menu_enable_disable(["Undo"],["Redo"])
 	},
@@ -1322,7 +1325,8 @@ Polymer({
 	let tiles = MahjongTiles(this)
 
 	// seed, should be web parameter
-	let game_seed = null
+	let game_seed = window.location.pathname
+	console.log("pathname: "+game_seed)
 	
 	// viewbox
 	let [tilew, tileh, offx, offy, facew, faceh] = tiles.sizes();
