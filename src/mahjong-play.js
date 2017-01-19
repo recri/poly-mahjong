@@ -717,9 +717,6 @@ function MahjongGame(root, layout, tiles, game_seed) {
 	},
 	restart_game : function() { this.restart() },
 
-	undo : function() { this.history_undo() },
-	redo : function() { this.history_redo() },
-	
 	//
 	// game play helpers
 	//
@@ -838,19 +835,14 @@ function MahjongGame(root, layout, tiles, game_seed) {
 	},
 	history_add : function(name1, slot1, name2, slot2) {
 	    this.clear_selected()
-	    while (history.items.length > history.count) {
-		history.items.pop()
-	    }
-	    history.items.push([name1, slot1, name2, slot2])
-
+	    history.items[history.count++] = [name1, slot1, name2, slot2]
 	    history.future = history.count
 	    this.menu_enable_disable(["Undo"],["Redo"])
 	},
 	history_undo : function() {
 	    // step back
 	    this.clear_selected()
-	    history.count -= 1
-	    this.move_place.apply(this, history.items[history.count])
+	    this.move_place.apply(this, history.items[--history.count])
 	    if (history.count > 0) {
 		this.menu_enable_disable(["Undo", "Redo"], [])
 	    } else {
@@ -861,8 +853,7 @@ function MahjongGame(root, layout, tiles, game_seed) {
 	history_redo : function() {
 	    // step forward
 	    this.clear_selected()
-	    this.move_unplace.apply(this, history.items[history.count])
-	    history.count += 1
+	    this.move_unplace.apply(this, history.items[history.count++])
 	    if (history.count < history.future) {
 		this.menu_enable_disable(["Undo", "Redo"], [])
 	    } else {
@@ -1347,12 +1338,12 @@ Polymer({
 
     menu_dismiss: function() { this.$.menubutton.opened = false },
 
-    menu_undo: function() { this.game.undo(); this.menu_dismiss() },
-    menu_redo: function() { this.game.redo(); this.menu_dismiss() },
+    menu_undo: function() { this.game.history_undo(); this.menu_dismiss() },
+    menu_redo: function() { this.game.history_redo(); this.menu_dismiss() },
     menu_new: function() { this.game.new_game(); this.menu_dismiss() },
     menu_restart: function() { this.game.restart_game(); this.menu_dismiss() },
 
-    dialog_undo: function() { this.game.undo() },
+    dialog_undo: function() { this.game.history_undo() },
     dialog_new: function() { this.game.new_game() },
     dialog_restart: function() { this.game.restart_game() },
 
