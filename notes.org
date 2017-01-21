@@ -87,4 +87,8 @@
 	flaky meaning run/don't run for unknown reasons
 	moved button and menu events to polymer's tap event
 	no such event for the svg dom
-
+[x] fixed the broken history
+	the loop that truncated old history was busted,
+	stopped altering the size of the history.items,
+	just kept the correct pointers
+[ ] make the url show the seed of the random number generator

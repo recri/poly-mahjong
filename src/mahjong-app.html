@@ -1,0 +1,86 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+
+<dom-module id="mahjong-app" seed="{{seed}}">
+  <template>
+    <style>
+      :host {
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+	display: block;
+      }
+    </style>
+
+    <!-- app-location binds to the app's URL -->
+    <app-location route="{{route}}"></app-location>
+
+    <!-- this app-route manages the top-level routes -->
+    <app-route 
+       id="app-route"
+       route="{{route}}"
+       pattern="/"
+       data="{{routeData}}"
+       tail="{{subroute}}"></app-route>
+
+    <!-- iron-pages selects the view based on the active route -->
+    <iron-pages selected="play" attr-for-selected="name">
+      <mahjong-play name="play" seed="{{routeData}}"></mahjong-play>
+    </iron-pages>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'mahjong-app',
+
+      properties: {
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pageChanged'
+        }
+    
+      },
+
+      observers: [
+        '_routePageChanged(routeData.page)',
+        '_routeChanged(routeData)'
+      ],
+
+      _routeChanged: function(route) {
+	console.log("_routeChanged: ")
+        console.log(route)
+      },
+
+      _routePageChanged: function(page) {
+        console.log("_routePageChanged: ")
+	console.log(page)
+	this.page = 'play';
+      },
+
+      _pageChanged: function(page) {
+        // Load page import on demand. Show 404 page if fails
+        var resolvedPageUrl = this.resolveUrl('mahjong-' + page + '.html');
+        this.importHref(resolvedPageUrl, null, this._showPage404, true);
+      },
+
+      _showPage404: function() {
+        this.page = 'view404';
+      }
+    });
+  </script>
+
+</dom-module>

@@ -19,7 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 
-<dom-module id="mahjong-play">
+<dom-module id="mahjong-play" seed="{{seed}}">
   <template>
     <style include="shared-styles">
       :host {
@@ -44,6 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </style>
 
+    <!-- this div contains the application logic -->
     <div id="content">
       <!-- viewBox needs to be adjusted for layout and tiles
 	   the tiles are 64x88, but some of that is overlapped by adjacent tiles,

@@ -530,7 +530,7 @@ function MahjongTiles(root) {
     return self
 }
 
-function MahjongGame(root, layout, tiles, game_seed) {
+function MahjongGame(root, layout, tiles, seed) {
     // local variables
     let title = "mahjong"
     let shuffled_tiles = null
@@ -871,9 +871,9 @@ function MahjongGame(root, layout, tiles, game_seed) {
 	    // results in shuffle of -slots and -tiles
 	    // the optional $game may be supplying a game by name
 	    // or simply the time
-	    if (typeof game === "undefined") { game = clock_seconds() }
-	    game_seed = game
-	    srandom(game_seed)
+	    if (typeof game === "undefined" || game === "") { game = clock_seconds() }
+	    seed = game
+	    srandom(seed)
 	    shuffled_slots = shuffle(this.get_all_slots())
 	    shuffled_tiles = shuffle(this.get_tiles())
 	    this.start_status()
@@ -1316,8 +1316,8 @@ Polymer({
 	let tiles = MahjongTiles(this)
 
 	// seed, should be web parameter
-	let game_seed = window.location.pathname
-	console.log("pathname: "+game_seed)
+	console.log("seed: ")
+	console.log(this.seed)
 	
 	// viewbox
 	let [tilew, tileh, offx, offy, facew, faceh] = tiles.sizes();
@@ -1328,7 +1328,7 @@ Polymer({
 	this.$.mahjong.setAttribute("viewBox", vb)
 
 	// game
-	this.game = MahjongGame(this, layout, tiles, game_seed)
+	this.game = MahjongGame(this, layout, tiles, this.seed)
 
 	// console.log("finished in mahjong-play.ready");
     },
