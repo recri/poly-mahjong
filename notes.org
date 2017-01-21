@@ -61,6 +61,7 @@
 	in the desktop manifest etc
 [ ] make the icons correct
 	in the desktop manifest etc
+	that is, create an icon for Mahjong
 [x] saved to desktop game app cannot start new game without menu
 	should be better now
 [x] eliminate the play/tiles/layout/scores/prefs menu, just the play
@@ -92,3 +93,12 @@
 	stopped altering the size of the history.items,
 	just kept the correct pointers
 [ ] make the url show the seed of the random number generator
+	this fails when you try to reload a sub-url, the server
+	cannot resolve the url and it doesn't know that the program
+	will resolve it internally, surprised that there isn't a fix
+	for this already in polymer/firebase.
+[ ] make the svg icons render each in its own <svg> element which can
+	be the target of on-tap.  Problem is whether this needs to
+	include the entire set of defs in each tile.  There are ways
+	to reference an external svg, but I think it requires the <use>
+	elements inside the svg to ref itself as an external svg.
