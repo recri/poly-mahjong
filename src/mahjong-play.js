@@ -487,10 +487,10 @@ function MahjongTiles(root, layout) {
 	show : function(slot, name, tag) {
 	    if (tag == "blank") {
 		root.$[name+"-fg"].style.display = ""
-		root.$[name+"-bg"].setAttribute("href", "/images/tiles.svg#plain-tile")
+		root.$[name+"-bg"].setAttribute("href", "#plain-tile")
 	    } else {
 		root.$[name+"-fg"].style.display = ""
-		root.$[name+"-bg"].setAttribute("href", "/images/tiles.svg#"+tag+"-tile")
+		root.$[name+"-bg"].setAttribute("href", "#"+tag+"-tile")
 	    }
 	},
 	hide : function(slot, name) {
@@ -522,8 +522,8 @@ function MahjongTiles(root, layout) {
 	bg.id = id+"-bg"
 	fg.id = id+"-fg"
 
-	bg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "/images/tiles.svg#"+"plain-tile")
-	fg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "/images/tiles.svg#"+image)
+	bg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+"plain-tile")
+	fg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+image)
 
 	tile.appendChild(svg)
 	svg.appendChild(bg)
@@ -1360,7 +1360,6 @@ Polymer({
 	this.game = MahjongGame(this, layout, tiles, this.seed)
 	let self = this
 	window.onresize = function() { self.window_resize() }
-	svg4everybody(this.$.mahjong, {polyfill:true}); // run it now or whenever you are ready
 	console.log("finished in mahjong-play.ready");
     },
 
