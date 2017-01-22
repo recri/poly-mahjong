@@ -503,16 +503,33 @@ function MahjongTiles(root, layout) {
 	    console.log("tiles.resize")
 	    // need to resize and reposition all tiles to fit the new height and width
 	    // 1. compute the scale, which is the same for x and y, 
+	    let [layout_width, layout_height] = layout.sizes()
+	    layout_width+=1
+	    layout_height+=1
+	    let scalex = wiw / (layout_width * facew + offx)
+	    let scaley = wih / (layout_height * faceh + offy)
+	    scale = Math.min(scalex, scaley)
 	    // 2. compute the offset for x and y which center the smaller dimension of
 	    // the layout in the window, the larger dimension has offset = 0
+	    offsetx = (wiw - scale * (layout_width * facew + offx)) / 2
+	    offsety = (wih - scale * (layout_height * faceh + offy)) / 2
 	    // 3. apply the scale to the svg elements for each tile
+	    // let transform = "scale("+scale+")"
+	    let svg_width = scale*tilew
+	    let svg_height = scale*tileh
+	    for (let t of tiles) { 
+		root.$[t+"-svg"].setAttribute("width", svg_width)
+		root.$[t+"-svg"].setAttribute("height", svg_height)
+		// root.$[t+"-bg"].setAttribute("transform", transform)
+		// root.$[t+"-fg"].setAttribute("transform", transform)
+	    }
 	    // 4. apply the scale and offsets to the positioning of each element
-	    
+	    // done outside where the slots for each tile are known
 	}, 
     }
 
     function create(id, image) {
-	let tile = document.createElement("div")
+	let tile = document.createElement("paper-button")
 	let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
 	let bg = document.createElementNS("http://www.w3.org/2000/svg", "use")
 	let fg = document.createElementNS("http://www.w3.org/2000/svg", "use")
@@ -526,6 +543,9 @@ function MahjongTiles(root, layout) {
 	fg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+image)
 
 	tile.appendChild(svg)
+	svg.setAttribute("viewBox", "0 0 "+tilew+" "+tileh)
+	svg.setAttribute("width", tilew)
+	svg.setAttribute("height", tileh)
 	svg.appendChild(bg)
 	svg.appendChild(fg)
 	root.$.mahjong.appendChild(tile)
@@ -534,7 +554,7 @@ function MahjongTiles(root, layout) {
 	root.$[fg.id] = fg
 	root.$[svg.id] = svg
 	root.$[id] = tile
-	root.$[id].tap = function() { root.tile_tap(id) }
+	root.$[id].addEventListener("tap", function() { root.tile_tap(id) })
 
 	return id
     }
