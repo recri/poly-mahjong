@@ -448,7 +448,7 @@ function MahjongLayout(root, map) {
     return layout
 }
 
-function MahjongTiles(root) {
+function MahjongTiles(root, layout) {
     let images = [
 	"one-coin", "two-coins", "three-coins", "four-coins", "five-coins", "six-coins", "seven-coins",
 	"eight-coins", "nine-coins", "one-bamboo", "two-bamboo", "three-bamboo", "four-bamboo", "five-bamboo",
@@ -467,25 +467,30 @@ function MahjongTiles(root) {
     let facew = tilew - offx			// tile face width
     let faceh = tileh - offy			// tile face height
 
+    let scale = 1.0, offsetx = 0.0, offsety = 0.0
+
     let self = {
 	get_tiles : () => tiles,
 	match : (name1, name2) => name1.substring(0,name1.length-2) === name2.substring(0,name2.length-2),
-	draw : function(slot, name) {
+	position : function(slot, name) {
 	    let [x,y,z] = slot
 	    sx = (x+0.25)*facew + z*offx
 	    sy = (y+0.25)*faceh - z*offy
-	    let translate = root.$.mahjong.createSVGTransform();
-	    translate.setTranslate(sx,sy);
-	    root.$[name].transform.baseVal.initialize(translate)
+	    root.$[name].style.position = "absolute"
+	    root.$[name].style.left = Math.floor(scale*sx+offsetx)+"px"
+	    root.$[name].style.top = Math.floor(scale*sy+offsety)+"px"
+	},
+	draw : function(slot, name) {
+	    this.position(slot, name)
 	    root.$[name].style.display = ""
 	},
 	show : function(slot, name, tag) {
 	    if (tag == "blank") {
 		root.$[name+"-fg"].style.display = ""
-		root.$[name+"-bg"].setAttribute("href", "#plain-tile")
+		root.$[name+"-bg"].setAttribute("href", "/images/tiles.svg#plain-tile")
 	    } else {
 		root.$[name+"-fg"].style.display = ""
-		root.$[name+"-bg"].setAttribute("href", "#"+tag+"-tile")
+		root.$[name+"-bg"].setAttribute("href", "/images/tiles.svg#"+tag+"-tile")
 	    }
 	},
 	hide : function(slot, name) {
@@ -494,28 +499,42 @@ function MahjongTiles(root) {
 	    }
 	},
 	sizes : () => [tilew, tileh, offx, offy, facew, faceh],
+	resize : function(wiw, wih) {
+	    console.log("tiles.resize")
+	    // need to resize and reposition all tiles to fit the new height and width
+	    // 1. compute the scale, which is the same for x and y, 
+	    // 2. compute the offset for x and y which center the smaller dimension of
+	    // the layout in the window, the larger dimension has offset = 0
+	    // 3. apply the scale to the svg elements for each tile
+	    // 4. apply the scale and offsets to the positioning of each element
+	    
+	}, 
     }
 
     function create(id, image) {
-	let tile = document.createElementNS("http://www.w3.org/2000/svg", "g")
+	let tile = document.createElement("div")
+	let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
 	let bg = document.createElementNS("http://www.w3.org/2000/svg", "use")
 	let fg = document.createElementNS("http://www.w3.org/2000/svg", "use")
 
 	tile.id = id
+	svg.id = id+"-svg"
 	bg.id = id+"-bg"
 	fg.id = id+"-fg"
 
-	bg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+"plain-tile")
-	fg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "#"+image)
+	bg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "/images/tiles.svg#"+"plain-tile")
+	fg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "/images/tiles.svg#"+image)
 
-	tile.appendChild(bg)
-	tile.appendChild(fg)
+	tile.appendChild(svg)
+	svg.appendChild(bg)
+	svg.appendChild(fg)
 	root.$.mahjong.appendChild(tile)
 	
 	root.$[bg.id] = bg
 	root.$[fg.id] = fg
+	root.$[svg.id] = svg
 	root.$[id] = tile
-	root.$[id].onclick = function() { root.tile_tap(id) }
+	root.$[id].tap = function() { root.tile_tap(id) }
 
 	return id
     }
@@ -526,7 +545,7 @@ function MahjongTiles(root) {
 	    tiles.push(create(t+"-"+i, t))
 	}
     }
-
+    self.resize(window.innerWidth, window.innerHeight)
     return self
 }
 
@@ -1206,6 +1225,7 @@ function MahjongGame(root, layout, tiles, seed) {
 	    selected = [slot, name]
 	},
 
+	//
 	tile_tap : function(name1) {
 	    let slot1 = this.get_name_slot(name1)
 	    // if paused return
@@ -1242,6 +1262,14 @@ function MahjongGame(root, layout, tiles, seed) {
 		// this.raise_in_render_order()
 	    }
 	},
+	//
+	window_resize : function(wiw, wih) { 
+	    console.log("window_resize")
+	    tiles.resize(wiw, wih) 
+	    for (let name of this.get_tiles()) {
+		tiles.position(this.get_name_slot(name), name)
+	    }
+	},
     }
 
     // start first game
@@ -1252,6 +1280,7 @@ function MahjongGame(root, layout, tiles, seed) {
 Polymer({
     is: 'mahjong-play',
     ready: function() {
+	console.log("mahjong-play enters ready");
 	// tile layout
 	let layout = MahjongLayout(this, [
 	    // layer z == 0
@@ -1313,7 +1342,7 @@ Polymer({
 	]);
 
 	// tile images
-	let tiles = MahjongTiles(this)
+	let tiles = MahjongTiles(this, layout)
 
 	// seed, should be web parameter
 	console.log("seed: ")
@@ -1325,15 +1354,19 @@ Polymer({
 	let w = Math.floor((layw+0.5)*facew+offx)
 	let h = Math.floor((layh+0.5)*faceh+offy)
 	let vb = "0 0 "+w+" "+h
-	this.$.mahjong.setAttribute("viewBox", vb)
+	// this.$.mahjong.setAttribute("viewBox", vb)
 
 	// game
 	this.game = MahjongGame(this, layout, tiles, this.seed)
-
-	// console.log("finished in mahjong-play.ready");
+	let self = this
+	window.onresize = function() { self.window_resize() }
+	svg4everybody(this.$.mahjong, {polyfill:true}); // run it now or whenever you are ready
+	console.log("finished in mahjong-play.ready");
     },
 
     // event handlers
+    window_resize : function() { this.game.window_resize(window.innerWidth, window.innerHeight) },
+
     tile_tap: function(name) { this.game.tile_tap(name) },
 
     menu_dismiss: function() { this.$.menubutton.opened = false },

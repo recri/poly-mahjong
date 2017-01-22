@@ -22,6 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         --app-secondary-color: black;
 	display: block;
       }
+      iron-pages, mahjong-play { width:100%; height:100%; }
     </style>
 
     <!-- app-location binds to the app's URL -->
@@ -37,7 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- iron-pages selects the view based on the active route -->
     <iron-pages selected="play" attr-for-selected="name">
-      <mahjong-play name="play" seed="{{routeData}}"></mahjong-play>
+      <mahjong-play name="play" seed="{{routeData.query.seed}}"></mahjong-play>
     </iron-pages>
 
   </template>
