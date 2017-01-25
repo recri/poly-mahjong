@@ -47,7 +47,7 @@
 * To do list
 [x] make svg canvas a useful size
 	the css/props to size it were stolen from elsewhere
-[ x solve the source of laggy touches
+[x] solve the source of laggy touches
 	seems to be the tests for playability, which get laggy
 	when they have to go into deep thought, delays response
 	to subsequent touches,
@@ -81,8 +81,10 @@
 [ ] rewrite mahjong-play.js to avoid es6 errors
 	or keep it as is until es6 handled in polymer-2.0
 [x] eliminate offset of icon
-[ ] add keyboard accelerators to menu
+[x] add keyboard accelerators to menu
+[ ] figure out how to hint at keyboard accelerators in menu
 [ ] add "About" item to menu with brief dialog
+[ ] add "Pause" and "Continue" and game timing
 [x] figure out why the end of game buttons are flaky
 	tried posting actions with this.async() still flaky
 	flaky meaning run/don't run for unknown reasons
@@ -112,4 +114,6 @@
 [ ] on android, not centered, not redrawn correctly on rotate
 [ ] on android, tiles have unusual tap response, especially with tappable
 	neighbors
-[ ] limit on-tap handlers to tiles which are in play
+[ ] limit on-tap handlers to tiles which are in play, so there aren't so
+	many impotent button press animations
+

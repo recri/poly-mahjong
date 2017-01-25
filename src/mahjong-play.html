@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="mahjong-icons.html">
 
+<link rel="import" href="../bower_components/iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
@@ -526,18 +527,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	start the game over,
 	or start a new game.</p>
       <div class="buttons">
-	<paper-button raised dialog-confirm on-tap="dialog_undo">Undo</paper-button>
-	<paper-button raised dialog-confirm on-tap="dialog_restart">Restart</paper-button>
-	<paper-button raised dialog-confirm on-tap="dialog_new">New Game</paper-button>
+	<paper-button raised dialog-confirm on-tap="action_undo">Undo</paper-button>
+	<paper-button raised dialog-confirm on-tap="action_restart">Restart</paper-button>
+	<paper-button raised dialog-confirm on-tap="action_new">New Game</paper-button>
       </div>
     </paper-dialog>
       
     <paper-dialog id="youwin" modal>
       <h2>You have won the game</h2>
       <div class="buttons">
-	<paper-button raised dialog-confirm on-tap="dialog_undo">Undo</paper-button>
-	<paper-button raised dialog-confirm on-tap="dialog_restart">Restart</paper-button>
-	<paper-button raised dialog-confirm on-tap="dialog_new">New Game</paper-button>
+	<paper-button raised dialog-confirm on-tap="action_undo">Undo</paper-button>
+	<paper-button raised dialog-confirm on-tap="action_restart">Restart</paper-button>
+	<paper-button raised dialog-confirm on-tap="action_new">New Game</paper-button>
       </div>
     </paper-dialog>
     

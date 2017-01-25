@@ -1299,6 +1299,27 @@ function MahjongGame(root, layout, tiles, seed) {
 
 Polymer({
     is: 'mahjong-play',
+
+    properties: {
+      keyEventTarget: {
+        type: Object,
+        value: function() {
+          return document.body;
+        }
+      }
+    },
+
+    behaviors: [
+      Polymer.IronA11yKeysBehavior
+    ],
+
+    keyBindings: {
+	'n': 'action_new',
+	'o': 'action_restart',
+	'r': 'action_redo',
+	'u': 'action_undo'
+    },
+
     ready: function() {
 	console.log("mahjong-play enters ready");
 	// tile layout
@@ -1390,13 +1411,14 @@ Polymer({
 
     menu_dismiss: function() { this.$.menubutton.opened = false },
 
-    menu_undo: function() { this.game.history_undo(); this.menu_dismiss() },
-    menu_redo: function() { this.game.history_redo(); this.menu_dismiss() },
-    menu_new: function() { this.game.new_game(); this.menu_dismiss() },
-    menu_restart: function() { this.game.restart_game(); this.menu_dismiss() },
+    menu_undo: function() { this.action_undo(); this.menu_dismiss() },
+    menu_redo: function() { this.action_redo(); this.menu_dismiss() },
+    menu_new: function() { this.action_new(); this.menu_dismiss() },
+    menu_restart: function() { this.action_restart(); this.menu_dismiss() },
 
-    dialog_undo: function() { this.game.history_undo() },
-    dialog_new: function() { this.game.new_game() },
-    dialog_restart: function() { this.game.restart_game() },
-
+    action_undo : function() { this.game.history_undo() },
+    action_redo : function() { this.game.history_redo() },
+    action_new : function() { this.game.new_game() },
+    action_restart : function() { this.game.restart_game() },
+    
 });
