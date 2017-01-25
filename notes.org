@@ -109,3 +109,7 @@
 [ ] look for clues about making the button animation work correctly on the
 	dialogs
 [ ] add icon buttons for undo/redo to the main screen
+[ ] on android, not centered, not redrawn correctly on rotate
+[ ] on android, tiles have unusual tap response, especially with tappable
+	neighbors
+[ ] limit on-tap handlers to tiles which are in play
