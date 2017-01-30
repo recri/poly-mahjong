@@ -59,7 +59,7 @@
 	that presents undo/restart/new as options	
 [x] make the name correct
 	in the desktop manifest etc
-[ ] make the icons correct
+[x] make the icons correct
 	in the desktop manifest etc
 	that is, create an icon for Mahjong
 [x] saved to desktop game app cannot start new game without menu
@@ -80,11 +80,16 @@
 	just enclosed the text in <p></p> and received margins
 [ ] rewrite mahjong-play.js to avoid es6 errors
 	or keep it as is until es6 handled in polymer-2.0
+	and rewrite into es6 entirely
 [x] eliminate offset of icon
 [x] add keyboard accelerators to menu
 [ ] figure out how to hint at keyboard accelerators in menu
+[ ] make sure that accelerators are disabled when menu is disabled
 [ ] add "About" item to menu with brief dialog
 [ ] add "Pause" and "Continue" and game timing
+[ ] add "Hint" to menu
+[ ] add "Preferences" to menu
+[ ] add "Scores" to menu (who saves scores, where?)
 [x] figure out why the end of game buttons are flaky
 	tried posting actions with this.async() still flaky
 	flaky meaning run/don't run for unknown reasons
@@ -104,16 +109,25 @@
 	include the entire set of defs in each tile.  There are ways
 	to reference an external svg, but I think it requires the <use>
 	elements inside the svg to ref itself as an external svg.
-[ ] reduce the umbra of the tile buttons?  maybe not, let it be for now
+[x] reduce the umbra of the tile buttons?  maybe not, let it be for now
+	reduced by setting noink on the paper-button and using a dev
+	release of chrome on android
 [x] move the app background-color to the <body> because we lost all the
 	height:100% settings for some reason when I built and pushed to
 	firebase
-[ ] look for clues about making the button animation work correctly on the
+[x] look for clues about making the button animation work correctly on the
 	dialogs
+	need to fire action after "transitionend" event from the button
 [ ] add icon buttons for undo/redo to the main screen
 [ ] on android, not centered, not redrawn correctly on rotate
-[ ] on android, tiles have unusual tap response, especially with tappable
-	neighbors
-[ ] limit on-tap handlers to tiles which are in play, so there aren't so
-	many impotent button press animations
+	the actual problem has to do with rotate, occurs on Flip, too, so
+	the resize event is only part of the story when rotating
+[x] on android, tiles have unusual tap response, especially with tappable
+	neighbors, fixed with canary Chrome and noink on the paper-button,
+	will probably help responsiveness on the slower machines, too.
+[x] limit on-tap handlers to tiles which are in play, so there aren't so
+	many impotent button press animations, eliminated all on-tap animation
+	on tiles by seting noink="true", but I still get some ink on Android,
+	but not when I go for a more canary version of Chrome
+
 

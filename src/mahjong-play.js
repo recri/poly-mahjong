@@ -554,6 +554,7 @@ function MahjongTiles(root, layout) {
 	root.$[fg.id] = fg
 	root.$[svg.id] = svg
 	root.$[id] = tile
+	root.$[id].noink = true
 	root.$[id].addEventListener("tap", function() { root.tile_tap(id) })
 
 	return id
@@ -583,7 +584,7 @@ function MahjongGame(root, layout, tiles, seed) {
     let selected = null
     let status_started = false
     let name_to_slot = new Map()
-
+    let name_to_enabled = new Map()
     // local functions
     let random = alea("this is the seed").double
     function srandom(seed) { random = alea(seed).double }
@@ -723,6 +724,7 @@ function MahjongGame(root, layout, tiles, seed) {
 	menu_enable_disable : function(enable, disable) {
 	    for (let label of enable) { this.menu_disable(label, false) }
 	    for (let label of disable) { this.menu_disable(label, true) }
+	    // handle accelerator enable/disable too
 	},
 
 	first_game : function() {
@@ -1161,10 +1163,10 @@ function MahjongGame(root, layout, tiles, seed) {
 	// game play/unplay mechanics
 	//
 	find_slots_in_play : function() {
-	    // return this.get_all_slots().filter((slot) => ! this.is_empty_slot(slot))
-	    let slots = []
-	    for (let s of this.get_all_slots()) if ( ! this.is_empty_slot(s)) slots.push(s)
-	    return slots
+	    return this.get_all_slots().filter((slot) => ! this.is_empty_slot(slot))
+	    // let slots = []
+	    // for (let s of this.get_all_slots()) if ( ! this.is_empty_slot(s)) slots.push(s)
+	    // return slots
 	},
 	find_moves : function() {
 	    let moves = []
@@ -1186,20 +1188,20 @@ function MahjongGame(root, layout, tiles, seed) {
 	    return null
 	},
 	find_all_can_unplay : function(slots, donotblock) {
-	    // return slots.filter((slot) => this.can_unplay(slot, donotblock))
-	    let all = []
-	    for (let slot of slots) if (this.can_unplay(slot, donotblock)) all.push(slot)
-	    return all
+	    return slots.filter((slot) => this.can_unplay(slot, donotblock))
+	    // let all = []
+	    // for (let slot of slots) if (this.can_unplay(slot, donotblock)) all.push(slot)
+	    // return all
 	},
 	find_can_play : function(slots) {
 	    for (let slot of slots) if (this.can_play(slot)) return slot
 	    throw("cannot play")
 	},
 	find_all_can_play : function(slots) {
-	    // return slots.filter((slot) => this.can_play(slot))
-	    let all = []
-	    for (let slot of slots) if (this.can_play(slot)) all.push(slot)
-	    return all
+	    return slots.filter((slot) => this.can_play(slot))
+	    // let all = []
+	    // for (let slot of slots) if (this.can_play(slot)) all.push(slot)
+	    // return all
 	},
 	//
 	//
@@ -1244,13 +1246,11 @@ function MahjongGame(root, layout, tiles, seed) {
 	    this.show(slot, name, "selected")
 	    selected = [slot, name]
 	},
-
-	//
 	tile_tap : function(name1) {
-	    let slot1 = this.get_name_slot(name1)
 	    // if paused return
 	    if (paused) return
 	    // if this slot is playable
+	    let slot1 = this.get_name_slot(name1)
 	    if (this.can_play(slot1)) {
 		// if a slot is already selected
 		if (this.is_selected()) {
@@ -1322,7 +1322,11 @@ Polymer({
 	'n': 'action_new',
 	'o': 'action_restart',
 	'r': 'action_redo',
-	'u': 'action_undo'
+	'u': 'action_undo',
+	// 'p' : 'action_pause',
+	// 'c' : 'action_continue',
+	// 'h' : 'action_hint',
+	// 'f' : 'action_prefs',
     },
 
     ready: function() {
@@ -1394,17 +1398,19 @@ Polymer({
 	console.log("seed: "+this.seed)
 	
 	// viewbox
-	let [tilew, tileh, offx, offy, facew, faceh] = tiles.sizes();
-	let [layw, layh] = layout.sizes()
-	let w = Math.floor((layw+0.5)*facew+offx)
-	let h = Math.floor((layh+0.5)*faceh+offy)
-	let vb = "0 0 "+w+" "+h
+	// let [tilew, tileh, offx, offy, facew, faceh] = tiles.sizes();
+	// let [layw, layh] = layout.sizes()
+	// let w = Math.floor((layw+0.5)*facew+offx)
+	// let h = Math.floor((layh+0.5)*faceh+offy)
+	// let vb = "0 0 "+w+" "+h
 	// this.$.mahjong.setAttribute("viewBox", vb)
 
 	// game
 	this.game = MahjongGame(this, layout, tiles, this.seed)
+
 	let self = this
 	window.onresize = function() { self.window_resize() }
+
 	console.log("finished in mahjong-play.ready");
     },
 
