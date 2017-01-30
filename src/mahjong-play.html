@@ -46,6 +46,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <!-- tile definitions -->
+    <!-- It seems that this would be easily moved into an external file, eg mahjong-tiles.svg,
+	 and imported via links, eg xlink:href="mahjong-tiles.svg#plain-tile", but this fails 
+	 when the external file contains links to itself, eg xlink:href="#two-coins" which calls 
+	 xlink:href="#coin" twice.  This renders perfectly when it is inline as it is here, but
+	 fails when the file is external and the outer definition calls an inner definition.
+	 The problem is probably with document.importNode which does not update xlink:href links
+	 when imported to point to the correct location, they retain the same link content as the
+	 source.
+	 The "right thing" is pretty obvious, the rendering of xlink:href="mahjong-tiles.svg#two-coins"
+	 with the SVG in an external file should do exactly the same thing as xlink:href="#two-coins"
+	 with the SVG included inline.
+      -->
     <svg class="definitions" version="1.1" xmlns="http://www.w3.org/2000/svg">
       <defs>
 	<g id="plain-tile">
