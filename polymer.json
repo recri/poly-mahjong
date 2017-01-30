@@ -2,7 +2,8 @@
     "entrypoint": "index.html",
     "shell": "src/mahjong-app.html",
     "fragments": [
-	"src/mahjong-play.html"
+	"src/mahjong-play.html",
+	"src/mahjong-404.html"
     ],
     "sourceGlobs": [
 	"src/**/*",

@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 
-<dom-module id="mahjong-app" seed="{{seed}}">
+<dom-module id="mahjong-app">
   <template>
     <style>
       :host {
@@ -26,7 +26,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <!-- app-location binds to the app's URL -->
-    <app-location route="{{route}}"></app-location>
+    <app-location route="{{route}} path="{{path}}" use-hash-as-path"></app-location>
 
     <!-- this app-route manages the top-level routes -->
     <app-route 
@@ -38,7 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- iron-pages selects the view based on the active route -->
     <iron-pages selected="play" attr-for-selected="name">
-      <mahjong-play name="play" seed="{{routeData.query.seed}}"></mahjong-play>
+      <mahjong-play name="play" seed="{{path}}"></mahjong-play>
     </iron-pages>
 
   </template>
@@ -52,8 +52,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: String,
           reflectToAttribute: true,
           observer: '_pageChanged'
+        },
+        path: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pathChanged'
         }
-    
       },
 
       observers: [
@@ -61,14 +65,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         '_routeChanged(routeData)'
       ],
 
+      _pathChanged: function(path) {
+	console.log("_pathChanged: "+path)
+      },
+    
       _routeChanged: function(route) {
-	console.log("_routeChanged: ")
-        console.log(route)
+	console.log("_routeChanged: "+route.path)
       },
 
       _routePageChanged: function(page) {
-        console.log("_routePageChanged: ")
-	console.log(page)
+        console.log("_routePageChanged: "+page)
 	this.page = 'play';
       },
 

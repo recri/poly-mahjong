@@ -1301,12 +1301,17 @@ Polymer({
     is: 'mahjong-play',
 
     properties: {
-      keyEventTarget: {
-        type: Object,
-        value: function() {
-          return document.body;
-        }
-      }
+	seed: {
+	    type: String,
+	    reflectToAttribute: true,
+            observer: 'seedChanged'
+	},
+	keyEventTarget: {
+            type: Object,
+            value: function() {
+		return document.body;
+            }
+	}
     },
 
     behaviors: [
@@ -1386,8 +1391,7 @@ Polymer({
 	let tiles = MahjongTiles(this, layout)
 
 	// seed, should be web parameter
-	console.log("seed: ")
-	console.log(this.seed)
+	console.log("seed: "+this.seed)
 	
 	// viewbox
 	let [tilew, tileh, offx, offy, facew, faceh] = tiles.sizes();
@@ -1420,5 +1424,7 @@ Polymer({
     action_redo : function() { this.game.history_redo() },
     action_new : function() { this.game.new_game() },
     action_restart : function() { this.game.restart_game() },
+    
+    _seedChanged : function(seed) { console.log("seedChanged: "+seed) }
     
 });
