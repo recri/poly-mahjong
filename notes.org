@@ -84,7 +84,12 @@
 [x] eliminate offset of icon
 [x] add keyboard accelerators to menu
 [ ] figure out how to hint at keyboard accelerators in menu
-[ ] make sure that accelerators are disabled when menu is disabled
+[x] make sure that accelerators are disabled when menu is disabled
+	turned out to be much more complicated, done in brute force but
+	not correctly, the menu accelerators should be focused when the
+	mahjong game is focused and simply disabled when the modal dialogs
+	open, the modal dialogs should implement the same accelerators to
+	the extent they are meaningful
 [ ] add "About" item to menu with brief dialog
 [ ] add "Pause" and "Continue" and game timing
 [ ] add "Hint" to menu

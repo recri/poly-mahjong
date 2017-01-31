@@ -723,26 +723,38 @@ function MahjongGame(root, layout, tiles, seed) {
 	layout_sizes : () => layout.sizes(),
 	xy_for_slot : (slot) => tiles.xy_for_slot(slot),
 
-	menu_disable : function(label, disabled) {
+	menu_item_id : function(label) {
 	    switch (label) {
-	    case "Undo": root.$.undo_move.disabled = disabled; break
-	    case "Redo": root.$.redo_move.disabled = disabled; break
-	    case "New Game": root.$.new_game.disabled = disabled; break
-	    case "Restart": root.$.restart_game.disabled = disabled; break
-	    case "Pause": break
-	    case "Continue": break
-	    case "Hint": break
-	    case "Scores": break
-	    case "Preferences": break
-	    case "Help": break
+	    case "Undo": return 'undo_move'
+	    case "Redo": return 'redo_move'
+	    case "New Game": return 'new_game'
+	    case "Restart": return 'restart_game'
+	    case "Pause": return '' // 'pause_game'
+	    case "Continue": return '' // 'continue_game'
+	    case "Hint": return '' // 'hint_move'
+	    case "Scores": return '' // 'scores_page'
+	    case "Preferences": return '' // 'prefs_page'
+	    case "Help": return '' // 'help_page'
+	    case "About": return '' // 'about_page'
 	    default: console.log("unhandled disable "+label)
+		return ''
 	    }
 	},
+	
+	menu_disable : function(label, disabled) {
+	    let id = this.menu_item_id(label)
+	    if (id !== '') root.$[id].disabled = disabled
+	},
 
+	menu_is_disabled : function(label) {
+	    let id = this.menu_item_id(label)
+	    if (id !== '') return root.$[id].disabled
+	    return true
+	},
+	
 	menu_enable_disable : function(enable, disable) {
 	    for (let label of enable) { this.menu_disable(label, false) }
 	    for (let label of disable) { this.menu_disable(label, true) }
-	    // handle accelerator enable/disable too
 	},
 
 	first_game : function() {
@@ -848,11 +860,13 @@ function MahjongGame(root, layout, tiles, seed) {
 		    // game lost
 		    // open {restart} {new game} {undo} {quit} dialog 
 		    // console.log("you lose")
+		    this.menu_enable_disable([], ["Undo", "Redo", "New Game", "Restart"])
 		    root.$.youlose.open()
 		} else {
 		    // game won	
 		    // open scores positioned at new score
 		    // console.log("you win")
+		    this.menu_enable_disable([], ["Undo", "Redo", "New Game", "Restart"])
 		    root.$.youwin.open()
 		}
 	    }
@@ -1328,14 +1342,14 @@ Polymer({
     ],
 
     keyBindings: {
-	'n': 'action_new',
-	'o': 'action_restart',
-	'r': 'action_redo',
-	'u': 'action_undo',
-	// 'p' : 'action_pause',
-	// 'c' : 'action_continue',
-	// 'h' : 'action_hint',
-	// 'f' : 'action_prefs',
+	'n': 'key_new',
+	'o': 'key_restart',
+	'r': 'key_redo',
+	'u': 'key_undo',
+	// 'p' : 'key_pause',
+	// 'c' : 'key_continue',
+	// 'h' : 'key_hint',
+	// 'f' : 'key_prefs',
     },
 
     ready: function() {
@@ -1426,11 +1440,23 @@ Polymer({
     menu_new: function() { this.action_new(); this.menu_dismiss() },
     menu_restart: function() { this.action_restart(); this.menu_dismiss() },
 
+    key_undo : function() { if ( ! this.game.menu_is_disabled("Undo")) this.action_undo() },
+    key_redo : function() { if ( ! this.game.menu_is_disabled("Redo")) this.action_redo() },
+    key_new : function() { if ( ! this.game.menu_is_disabled("New Game")) this.action_new() },
+    key_restart : function() { if ( ! this.game.menu_is_disabled("Restart")) this.action_restart() },
+    
+    dialog_undo : function() {
+	this.game.menu_enable_disable(["New Game", "Restart", "Pause", "Hint", "Redo", "Scores", "Preferences"], ["Continue", "Undo"])
+	this.game.history_undo()
+    },
+    dialog_new : function() { this.game.new_game() },
+    dialog_restart : function() { this.game.restart_game() },
+
     action_undo : function() { this.game.history_undo() },
     action_redo : function() { this.game.history_redo() },
     action_new : function() { this.game.new_game() },
     action_restart : function() { this.game.restart_game() },
-    
+
     _seedChanged : function(seed) { console.log("seedChanged: "+seed) }
     
 });
