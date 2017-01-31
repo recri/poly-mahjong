@@ -500,7 +500,7 @@ function MahjongTiles(root, layout) {
 	},
 	sizes : () => [tilew, tileh, offx, offy, facew, faceh],
 	resize : function(wiw, wih) {
-	    console.log("tiles.resize")
+	    // console.log("tiles.resize")
 	    // need to resize and reposition all tiles to fit the new height and width
 	    // 1. compute the scale, which is the same for x and y, 
 	    let [layout_width, layout_height] = layout.sizes()
@@ -527,8 +527,13 @@ function MahjongTiles(root, layout) {
 	    // done outside where the slots for each tile are known
 	}, 
     }
-
-    function create(id, image) {
+    
+    // direct tile tap handler, extracts tile identifyer from event target
+    // well, currentTarget, because target is an svg element
+    function tile_tap(event) { root.tile_tap(event.currentTarget.id) }
+    
+    // tile creator
+    function tile_create(id, image) {
 	let tile = document.createElement("paper-button")
 	let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
 	let bg = document.createElementNS("http://www.w3.org/2000/svg", "use")
@@ -555,7 +560,7 @@ function MahjongTiles(root, layout) {
 	root.$[svg.id] = svg
 	root.$[id] = tile
 	root.$[id].noink = true
-	root.$[id].addEventListener("tap", function() { root.tile_tap(id) })
+	root.$[id].addEventListener("tap", tile_tap)
 
 	return id
     }
@@ -563,7 +568,7 @@ function MahjongTiles(root, layout) {
     // create the tiles
     for (let t of images) { 
 	for (let i of [1,2,3,4]) {
-	    tiles.push(create(t+"-"+i, t))
+	    tiles.push(tile_create(t+"-"+i, t))
 	}
     }
     self.resize(window.innerWidth, window.innerHeight)
@@ -584,10 +589,23 @@ function MahjongGame(root, layout, tiles, seed) {
     let selected = null
     let status_started = false
     let name_to_slot = new Map()
-    let name_to_enabled = new Map()
+
     // local functions
     let random = alea("this is the seed").double
+
     function srandom(seed) { random = alea(seed).double }
+
+    function current_time_string() {
+	let now = new Date()
+	let zerofill2 = (n) => n > 9 ? ""+n : "0"+n
+	let year = ""+now.getFullYear()
+	let month = zerofill2(now.getMonth())
+	let day = zerofill2(now.getDate())
+	let hour = zerofill2(now.getHours())
+	let minute = zerofill2(now.getMinutes())
+	let second = zerofill2(now.getSeconds())
+	return year+month+day+hour+minute+second
+    }
 
     function shuffle(list) {
 	list = list.slice(0)
@@ -728,19 +746,7 @@ function MahjongGame(root, layout, tiles, seed) {
 	},
 
 	first_game : function() {
-	    if (this.game != null) {
-		this.new_game(scan_game(this.game))
-	    } else {
-		let game = clock_seconds()
-		this.new_game(game)
-	    }
-	    if (this.infinite) {
-		while (true) {
-		    let game = clock_seconds()
-		    this.trace_puts("new-game "+format_game(game))
-		    this.new_game(game)
-		}
-	    }
+	    this.new_game(seed)
 	},
 	new_game : function(game) {
 	    this.setup(game)
@@ -912,7 +918,10 @@ function MahjongGame(root, layout, tiles, seed) {
 	    // results in shuffle of -slots and -tiles
 	    // the optional $game may be supplying a game by name
 	    // or simply the time
-	    if (typeof game === "undefined" || game === "") { game = clock_seconds() }
+	    if (typeof game === "undefined" || game === "") { 
+		game = "#"+current_time_string()
+		window.location = game
+	    }
 	    seed = game
 	    srandom(seed)
 	    shuffled_slots = shuffle(this.get_all_slots())
@@ -1284,7 +1293,7 @@ function MahjongGame(root, layout, tiles, seed) {
 	},
 	//
 	window_resize : function(wiw, wih) { 
-	    console.log("window_resize")
+	    // console.log("window_resize")
 	    tiles.resize(wiw, wih) 
 	    for (let name of this.get_tiles()) {
 		tiles.position(this.get_name_slot(name), name)
@@ -1330,7 +1339,8 @@ Polymer({
     },
 
     ready: function() {
-	console.log("mahjong-play enters ready");
+	// console.log("mahjong-play enters ready");
+	
 	// tile layout
 	let layout = MahjongLayout(this, [
 	    // layer z == 0
@@ -1394,24 +1404,14 @@ Polymer({
 	// tile images
 	let tiles = MahjongTiles(this, layout)
 
-	// seed, should be web parameter
-	console.log("seed: "+this.seed)
-	
-	// viewbox
-	// let [tilew, tileh, offx, offy, facew, faceh] = tiles.sizes();
-	// let [layw, layh] = layout.sizes()
-	// let w = Math.floor((layw+0.5)*facew+offx)
-	// let h = Math.floor((layh+0.5)*faceh+offy)
-	// let vb = "0 0 "+w+" "+h
-	// this.$.mahjong.setAttribute("viewBox", vb)
-
 	// game
-	this.game = MahjongGame(this, layout, tiles, this.seed)
+	this.game = MahjongGame(this, layout, tiles, document.location.hash)
 
+	// window resize handler
 	let self = this
 	window.onresize = function() { self.window_resize() }
 
-	console.log("finished in mahjong-play.ready");
+	// console.log("finished in mahjong-play.ready");
     },
 
     // event handlers
