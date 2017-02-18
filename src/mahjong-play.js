@@ -599,7 +599,7 @@ function MahjongGame(root, layout, tiles, seed) {
 	let now = new Date()
 	let zerofill2 = (n) => n > 9 ? ""+n : "0"+n
 	let year = ""+now.getFullYear()
-	let month = zerofill2(now.getMonth())
+	let month = zerofill2(now.getMonth()+1)
 	let day = zerofill2(now.getDate())
 	let hour = zerofill2(now.getHours())
 	let minute = zerofill2(now.getMinutes())
