@@ -474,8 +474,8 @@ function MahjongTiles(root, layout) {
 	match : (name1, name2) => name1.substring(0,name1.length-2) === name2.substring(0,name2.length-2),
 	position : function(slot, name) {
 	    let [x,y,z] = slot
-	    sx = (x+0.25)*facew + z*offx
-	    sy = (y+0.25)*faceh - z*offy
+	    sx = (x+0.1)*facew + z*offx
+	    sy = (y+0.3)*faceh - z*offy
 	    root.$[name].style.position = "absolute"
 	    root.$[name].style.left = Math.floor(scale*sx+offsetx)+"px"
 	    root.$[name].style.top = Math.floor(scale*sy+offsety)+"px"
@@ -504,8 +504,8 @@ function MahjongTiles(root, layout) {
 	    // need to resize and reposition all tiles to fit the new height and width
 	    // 1. compute the scale, which is the same for x and y, 
 	    let [layout_width, layout_height] = layout.sizes()
-	    layout_width+=1
-	    layout_height+=1
+	    layout_width+=0.2
+	    layout_height+=0.4
 	    let scalex = wiw / (layout_width * facew + offx)
 	    let scaley = wih / (layout_height * faceh + offy)
 	    scale = Math.min(scalex, scaley)
@@ -757,11 +757,11 @@ function MahjongGame(root, layout, tiles, seed) {
 	    for (let label of disable) { this.menu_disable(label, true) }
 	},
 
-	first_game : function() {
+	first_game : function(seed) {
 	    this.new_game(seed)
 	},
-	new_game : function(game) {
-	    this.setup(game)
+	new_game : function() {
+	    this.setup()
 	    for (let done = false; ! done; ) {
 		done = true
 		try {
@@ -926,15 +926,17 @@ function MahjongGame(root, layout, tiles, seed) {
 	//
 	// setup the next game
 	// 
-	setup : function(game) {
+	setup : function() {
 	    // set up for a new game which might be restarted
 	    // so, game number seeds random number generator, 
 	    // results in shuffle of -slots and -tiles
 	    // the optional $game may be supplying a game by name
 	    // or simply the time
+	    let game = document.location.hash
 	    if (typeof game === "undefined" || game === "") { 
 		game = "#"+current_time_string()
-		window.location = game
+	    } else {
+		window.location = ""
 	    }
 	    seed = game
 	    srandom(seed)
@@ -1316,7 +1318,7 @@ function MahjongGame(root, layout, tiles, seed) {
     }
 
     // start first game
-    game.first_game()
+    game.first_game(seed)
     return game
 }
 
@@ -1327,7 +1329,7 @@ Polymer({
 	seed: {
 	    type: String,
 	    reflectToAttribute: true,
-            observer: 'seedChanged'
+            // observer: 'seedChanged'
 	},
 	keyEventTarget: {
             type: Object,
@@ -1419,7 +1421,7 @@ Polymer({
 	let tiles = MahjongTiles(this, layout)
 
 	// game
-	this.game = MahjongGame(this, layout, tiles, document.location.hash)
+	this.game = MahjongGame(this, layout, tiles, "")
 
 	// window resize handler
 	let self = this
@@ -1457,6 +1459,6 @@ Polymer({
     action_new : function() { this.game.new_game() },
     action_restart : function() { this.game.restart_game() },
 
-    _seedChanged : function(seed) { console.log("seedChanged: "+seed) }
+    // seedChanged : function(seed) { console.log("seedChanged: "+seed) }
     
 });

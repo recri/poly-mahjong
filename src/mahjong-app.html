@@ -14,6 +14,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 
+<link rel="import" href="mahjong-play.html">
+
 <dom-module id="mahjong-app">
   <template>
     <style>
@@ -26,7 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <!-- app-location binds to the app's URL -->
-    <app-location route="{{route}} path="{{path}}" use-hash-as-path"></app-location>
+    <app-location route="{{route}}" path="{{path}}" use-hash-as-path></app-location>
 
     <!-- this app-route manages the top-level routes -->
     <app-route 
@@ -57,7 +59,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: String,
           reflectToAttribute: true,
           observer: '_pathChanged'
-        }
+        },
+	data: {
+          type: Object,
+          reflectToAttribute: true,
+	},	
+	tail: {
+          type: String,
+          reflectToAttribute: true,
+	},	
+	subroute: {
+          type: String,
+          reflectToAttribute: true,
+	},	
+	routeData: {
+          type: Object,
+          reflectToAttribute: true,
+	},	
       },
 
       observers: [
