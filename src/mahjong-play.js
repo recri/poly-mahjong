@@ -932,13 +932,14 @@ function MahjongGame(root, layout, tiles, seed) {
 	    // results in shuffle of -slots and -tiles
 	    // the optional $game may be supplying a game by name
 	    // or simply the time
-	    let game = document.location.hash
-	    if (typeof game === "undefined" || game === "") { 
-		game = "#"+current_time_string()
+	    if (location.hash === "") { 
+		seed = "#"+current_time_string()
+		// console.log("make seed: "+seed)
 	    } else {
-		window.location = ""
+		seed = location.hash
+		location.hash = ""
+		// console.log("find seed: "+seed)
 	    }
-	    seed = game
 	    srandom(seed)
 	    shuffled_slots = shuffle(this.get_all_slots())
 	    shuffled_tiles = shuffle(this.get_tiles())

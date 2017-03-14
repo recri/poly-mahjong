@@ -1,9 +1,7 @@
 {
     "entrypoint": "index.html",
-    "shell": "src/mahjong-app.html",
+    "shell": "src/mahjong-play.html",
     "fragments": [
-	"src/mahjong-play.html",
-	"src/mahjong-404.html"
     ],
     "sources": [
 	"src/**/*",
@@ -13,5 +11,13 @@
     "extraDependencies": [
 	"manifest.json",
 	"bower_components/webcomponentsjs/webcomponents-lite.min.js"
-    ]
+    ],
+    "builds": [{
+	"bundle": true,
+	"js": {"minify": true, "compile": true},
+	"css": {"minify": true},
+	"html": {"minify": true},
+	"addServiceWorker": true,
+	"swPrecacheConfig": "sw-precache-config.js"
+    }]
 }

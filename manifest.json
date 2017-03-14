@@ -1,7 +1,7 @@
 {
   "name": "Mahjong",
   "short_name": "Mahjong",
-  "start_url": "/play",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#3f51b5",
   "background_color": "#3f51b5",
