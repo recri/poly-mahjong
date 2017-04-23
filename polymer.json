@@ -14,9 +14,9 @@
     ],
     "builds": [{
 	"bundle": true,
-	"js": {"minify": true, "compile": true},
-	"css": {"minify": true},
-	"html": {"minify": true},
+	"js": {"minify": false, "compile": true},
+	"css": {"minify": false},
+	"html": {"minify": false},
 	"addServiceWorker": true,
 	"swPrecacheConfig": "sw-precache-config.js"
     }]
