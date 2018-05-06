@@ -1436,13 +1436,6 @@ Polymer({
 
     tile_tap: function(name) { this.game.tile_tap(name) },
 
-    menu_dismiss: function() { this.$.menubutton.opened = false },
-
-    menu_undo: function() { this.action_undo(); this.menu_dismiss() },
-    menu_redo: function() { this.action_redo(); this.menu_dismiss() },
-    menu_new: function() { this.action_new(); this.menu_dismiss() },
-    menu_restart: function() { this.action_restart(); this.menu_dismiss() },
-
     key_undo : function() { if ( ! this.game.menu_is_disabled("Undo")) this.action_undo() },
     key_redo : function() { if ( ! this.game.menu_is_disabled("Redo")) this.action_redo() },
     key_new : function() { if ( ! this.game.menu_is_disabled("New Game")) this.action_new() },

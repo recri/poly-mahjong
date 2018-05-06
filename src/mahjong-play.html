@@ -33,13 +33,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       #mahjong {
         position:relative; top:0px; left:0px; width:100%; height:100%;
       }
-      paper-menu-button {
-        position:absolute; top:2px; left:2px;
+
+      div#toolbar-menu {
+        position:absolute; top:8px; left:8px; width:30px;
       }
-      paper-menu-button paper-icon-button {
+      div#toolbar-menu paper-icon-button {
         color: white;
         --paper-icon-button-ink-color: white;
       }
+
       #mahjong paper-button {
          margin: 0 0;
          padding: 0 0;
@@ -541,16 +543,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </svg>
     
     <div id="mahjong"></div>
-    <paper-menu-button id="menubutton">
-      <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
-      <paper-menu class="dropdown-content">
-	<paper-item id="new_game" on-tap="menu_new" disabled>New</paper-item>
-	<paper-item id="restart_game" on-tap="menu_restart" disabled>Restart</paper-item>
-	<paper-item id="undo_move" on-tap="menu_undo" disabled>Undo</paper-item>
-	<paper-item id="redo_move" on-tap="menu_redo" disabled>Redo</paper-item>
-      </paper-menu>
-    </paper-menu-button>
-
+    <div id="toolbar-menu">
+      <paper-icon-button id="new_game" icon="skip-next" on-tap="action_new" disabled></paper-icon-button>
+      <paper-icon-button id="restart_game" icon="skip-previous" on-tap="action_restart" disabled></paper-icon-button>
+      <paper-icon-button id="undo_move" icon="undo" on-tap="action_undo" disabled></paper-icon-button>
+      <paper-icon-button id="redo_move" icon="redo" on-tap="action_redo" disabled></paper-icon-button>
+    </div>
     <paper-dialog id="youlose" modal>
       <h2>There are no more moves.</h2>
       <p>Each puzzle has at least one solution.
