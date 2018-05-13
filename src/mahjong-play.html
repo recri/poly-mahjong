@@ -556,18 +556,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	start the game over,
 	or start a new game.</p>
       <div class="buttons">
-	<paper-button raised dialog-confirm on-transitionend="dialog_undo">Undo</paper-button>
-	<paper-button raised dialog-confirm on-transitionend="dialog_restart">Restart</paper-button>
-	<paper-button raised dialog-confirm on-transitionend="dialog_new">New Game</paper-button>
+	<paper-button raised dialog-confirm on-tap="dialog_undo">Undo</paper-button>
+	<paper-button raised dialog-confirm on-tap="dialog_restart">Restart</paper-button>
+	<paper-button raised dialog-confirm on-tap="dialog_new">New Game</paper-button>
       </div>
     </paper-dialog>
       
     <paper-dialog id="youwin" modal>
       <h2>You have won the game</h2>
       <div class="buttons">
-	<paper-button raised dialog-confirm on-transitionend="dialog_undo">Undo</paper-button>
-	<paper-button raised dialog-confirm on-transitionend="dialog_restart">Restart</paper-button>
-	<paper-button raised dialog-confirm on-transitionend="dialog_new">New Game</paper-button>
+	<paper-button raised dialog-confirm on-tap="dialog_undo">Undo</paper-button>
+	<paper-button raised dialog-confirm on-tap="dialog_restart">Restart</paper-button>
+	<paper-button raised dialog-confirm on-tap="dialog_new">New Game</paper-button>
       </div>
     </paper-dialog>
     
