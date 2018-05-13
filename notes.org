@@ -138,4 +138,11 @@
 	on tiles by seting noink="true", but I still get some ink on Android,
 	but not when I go for a more canary version of Chrome
 [ ] rotate button menu to align with free space on screen
-
+[x] changed dialog button event to on-tap from on-transition, but the dialogs still
+  get stuck on screen sometimes
+[ ] Fails lighthouse performance because there is so much to load for first
+  paint.  Should figure out what the bottle neck actually is before attempting
+  fixes.
+[ ] Really should figure out how to separate the tiles and the layout so they
+  can be customized.
+[ ] Separate tile runs into the svg rendering not using static binding to names
