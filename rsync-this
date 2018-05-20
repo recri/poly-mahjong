@@ -1,0 +1,2 @@
+#!/bin/sh
+rsync -av --delete --delete-excluded --exclude '*~' --exclude /bower_components ~/Web/mahjong/ elf021@elf021.pairserver.com:public_html/mahjong/
