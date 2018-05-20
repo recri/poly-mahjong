@@ -11,14 +11,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../bower_components/iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
-<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
-<link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 
-<link rel="import" href="mahjong-icons.html">
+<link rel="import" href="./mahjong-icons.html">
 
 <dom-module id="mahjong-play">
   <template>
@@ -549,6 +546,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-icon-button id="undo_move" icon="undo" on-tap="action_undo" title="Undo Move" disabled></paper-icon-button>
       <paper-icon-button id="redo_move" icon="redo" on-tap="action_redo" title="Redo Move" disabled></paper-icon-button>
     </div>
+    
     <paper-dialog id="youlose" modal>
       <h2>There are no more moves.</h2>
       <p>Each puzzle has at least one solution.
